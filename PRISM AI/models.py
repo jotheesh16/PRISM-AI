@@ -88,7 +88,7 @@ def parse_json_response(raw_text):
     return json.loads(text)
 
 
-def call(path, body):
+def call(path, body, timeout=None):
     base = os.getenv("PRISM_API_BASE", "http://localhost:11434/v1").rstrip("/")
     headers = {"Content-Type": "application/json"}
     key = os.getenv("PRISM_API_KEY")
@@ -99,8 +99,9 @@ def call(path, body):
     req = urllib.request.Request(
         base + "/" + path, data=json.dumps(body).encode(), headers=headers
     )
+    request_timeout = timeout or int(os.getenv("PRISM_TIMEOUT", "180"))
     try:
-        with urllib.request.urlopen(req, timeout=120) as res:
+        with urllib.request.urlopen(req, timeout=request_timeout) as res:
             return json.load(res)
     except urllib.error.HTTPError as exc:
         raise ServiceError(
@@ -124,12 +125,8 @@ def chat(model, system, message):
         "response_format": {"type": "json_object"},
         "temperature": 0.0,
         "max_tokens": 4096,
-        "options": {
-            "num_predict": 4096,
-            "temperature": 0.0,
-        },
     }
-    result = call("chat/completions", body)
+    result = call("chat/completions", body, timeout=180)
     try:
         raw_content = result["choices"][0]["message"]["content"]
         return parse_json_response(raw_content)

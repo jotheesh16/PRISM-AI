@@ -15,7 +15,10 @@ import pdfplumber
 from models import chat, embed
 from store import DATA, ROOT, connect
 
-POOL = ThreadPoolExecutor(max_workers=1, thread_name_prefix="pdf-index")
+POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pdf-index")
+
+# Minimum text characters on a page before skipping expensive vision inference
+_VISION_SKIP_TEXT_THRESHOLD = int(os.getenv("PRISM_VISION_TEXT_THRESHOLD", "200"))
 RENDER_LOCK = threading.Lock()
 FILES_LOCK = threading.RLock()
 
@@ -148,19 +151,37 @@ def scan(image, page):
     ]
 
 
-def visuals(page, image):
-    # Prefer actual embedded image bounds. Vector charts and maps can span a whole page.
+def visuals(page, image, page_text_len=0):
+    """Run vision model on page regions. Skip if page has abundant text (not chart-heavy)."""
+    # Pages with lots of text are rarely chart-only - skip to save time
+    # Only process pages likely to have meaningful visual-only evidence
+    MIN_IMAGE_SIZE = 60 * 45  # minimum pixels
+    
     boxes = [
         [i["x0"], i["top"], i["x1"], i["bottom"]]
         for i in page.images
         if i["width"] > 60 and i["height"] > 45
     ]
+    
+    # If the page has lots of text AND no large embedded images, skip vision
+    has_large_images = any(
+        i["width"] * i["height"] > page.width * page.height * 0.15
+        for i in page.images
+    )
+    if page_text_len > 800 and not has_large_images and not page.curves:
+        return
+    
     if page.curves or len(page.lines) + len(page.rects) > 6 or not boxes:
         boxes.append(None)
-    for box in boxes[:8]:
+    for box in boxes[:4]:  # max 4 regions per page instead of 8
         crop = image
         if box:
             sx, sy = image.width / page.width, image.height / page.height
+            # Skip tiny crops
+            cw = int((box[2] - box[0]) * sx)
+            ch = int((box[3] - box[1]) * sy)
+            if cw < 80 or ch < 60:
+                continue
             crop = image.crop(
                 (
                     int((box[0] - page.bbox[0]) * sx),
@@ -212,7 +233,8 @@ def process(doc):
                 ocr = scanned = 0
                 try:
                     items.extend(extract_text(page))
-                    scanned = int(sum(len(x[1]) for x in items) < 35)
+                    page_text_len = sum(len(x[1]) for x in items)
+                    scanned = int(page_text_len < 35)
                     if not scanned:
                         try:
                             items.extend(extract_tables(page))
@@ -239,7 +261,7 @@ def process(doc):
                         or len(page.lines) + len(page.rects) > 6
                     ):
                         try:
-                            items.extend(visuals(page, image or page_image(page, 1400)))
+                            items.extend(visuals(page, image or page_image(page, 1400), page_text_len))
                         except Exception as exc:
                             err_str = str(exc)
                             if "service unavailable" in err_str.lower() or "connection" in err_str.lower():

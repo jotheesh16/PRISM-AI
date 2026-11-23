@@ -19,14 +19,27 @@ export function setApiBase(base) {
 export const url = (path, params = {}) =>
   (apiBase || "") + path + "?" + new URLSearchParams({ space, ...params });
 export async function api(path, method = "GET", body, params) {
-  const res = await fetch(url(path, params), {
-    method,
-    headers: body ? { "Content-Type": "application/json" } : {},
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw Error(data.error || "Request failed");
-  return data;
+  const controller = new AbortController();
+  // Allow up to 180 seconds for LLM inference (chat/ask/compare/evaluation)
+  const isLongRunning = path.includes("/api/chat") || path.includes("/api/evaluation");
+  const timeoutMs = isLongRunning ? 180000 : 30000;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url(path, params), {
+      method,
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+    const data = await res.json();
+    if (!res.ok) throw Error(data.error || "Request failed");
+    return data;
+  } catch (err) {
+    if (err.name === "AbortError") throw Error("Request timed out. The AI model is still loading or busy — please retry.");
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 export const esc = (x) =>
   String(x ?? "").replace(

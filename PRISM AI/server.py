@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import socket
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -22,6 +23,17 @@ class Problem(Exception):
 
 
 class Handler(BaseHTTPRequestHandler):
+    # Increase socket timeout for long-running LLM inference (120 seconds)
+    timeout = 120
+
+    def setup(self):
+        super().setup()
+        # Keep socket alive and prevent WinError 10053 connection abort
+        try:
+            self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        except Exception:
+            pass
+
     def address_string(self):
         # Avoid reverse DNS lookup on client IP which causes timeouts offline
         return self.client_address[0]
@@ -33,17 +45,20 @@ class Handler(BaseHTTPRequestHandler):
     def reply(self, body, kind="application/json", status=200):
         if kind == "application/json":
             body = json.dumps(body, ensure_ascii=False).encode()
-        self.send_response(status)
-        self.send_header("Content-Type", kind)
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Access-Control-Allow-Origin", os.getenv("PRISM_CORS_ORIGIN", "*"))
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", kind)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Referrer-Policy", "no-referrer")
+            self.send_header("Access-Control-Allow-Origin", os.getenv("PRISM_CORS_ORIGIN", "*"))
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+            pass
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -297,7 +312,7 @@ class Handler(BaseHTTPRequestHandler):
     def dispatch(self):
         try:
             self.route()
-        except (BrokenPipeError, ConnectionResetError):
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             pass
         except Problem as exc:
             self.reply({"error": exc.message}, status=exc.code)
