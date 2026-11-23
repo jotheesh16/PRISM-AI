@@ -1,0 +1,16 @@
+{
+  "test": "Qwen3 4B Live Inference",
+  "status": "PASS",
+  "model": "qwen3:4b",
+  "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+  "elapsed_seconds": 9.29,
+  "response": "Here are 3 concise bullet points explaining why RAG reduces hallucinations:\n\n- **Real-time source grounding**: Responses are generated from retrieved documents rather than the model's internal knowledge, eliminating fabrication of facts not present in the knowledge base.  \n- **Explicit factual constraints**: The model must cite specific retrieved passages, forcing alignment with verifiable information and reducing speculative content.  \n- **Reduced knowledge extrapolation**: By limiting context to relevant documents, it avoids hallucinating details beyond the retrieved scope (a common source of hallucinations in pure LLMs).",
+  "usage": {
+    "prompt_tokens": 45,
+    "prompt_tokens_details": {
+      "cached_tokens": 3
+    },
+    "completion_tokens": 641,
+    "total_tokens": 686
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "test": "Qwen2.5-VL 3B Live Multimodal Vision Inference",
+  "status": "PASS",
+  "model": "qwen2.5vl:3b",
+  "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+  "source_document": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+  "page": 54,
+  "image_dimensions": "1000x1375",
+  "elapsed_seconds": 9.81,
+  "response": "{\n  \"evidence\": \"Chart IV.12: Trends in onion production across regions\\nChart IV.13: Trends in tomato production across regions\"\n}",
+  "usage": {
+    "prompt_tokens": 1833,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens": 35,
+    "total_tokens": 1868
+  }
+}

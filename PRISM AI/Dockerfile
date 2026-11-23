@@ -15,6 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PRISM_EMBED_MODEL=all-minilm \
     TESSERACT_CMD=tesseract \
     PRISM_OCR_LANG=eng \
+    HF_HOME=/home/prism/.cache/huggingface \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1
 
