@@ -1,0 +1,302 @@
+[
+  {
+    "id": "q710678",
+    "question": "How many tourists visited the Taj Mahal in 2023?",
+    "status": "refuse",
+    "answer": "The requested information could not be verified from the uploaded reports.",
+    "doc": null,
+    "page": null,
+    "bbox": null,
+    "expected": {
+      "status": "refuse",
+      "doc": null,
+      "page": null,
+      "fact": "Taj Mahal visitor statistics are completely absent from all reports."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "kerala_budget_speech_2026-27.pdf",
+      "top_candidate_page": 80,
+      "candidate_count": 42
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q951492",
+    "question": "According to Chart IV.13 of the Economic Survey 2024-25, what was the all-India tomato production in 2023-24, in million tonnes?",
+    "status": "answer",
+    "answer": "Chart IV.13: Trends in tomato production across regions (Page 54)",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 54,
+    "bbox": [
+      128.52,
+      484.32,
+      447.54,
+      495.32
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "page": 54,
+      "fact": "Chart IV.13 is on page 54 with trends in tomato production across regions."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "top_candidate_page": 54,
+      "candidate_count": 35
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q665162",
+    "question": "According to Chart IV.12 of the Economic Survey 2024-25, what was the all-India onion production in 2021-22, in million tonnes?",
+    "status": "answer",
+    "answer": "Chart IV.12: Trends in onion production across regions (Page 54)",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 54,
+    "bbox": [
+      127.84,
+      74.18,
+      439.47,
+      85.18
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "page": 54,
+      "fact": "Chart IV.12 is on page 54 with trends in onion production across regions."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "top_candidate_page": 54,
+      "candidate_count": 49
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q499069",
+    "question": "What was the average rent per square foot for office space in Mumbai in 2024?",
+    "status": "refuse",
+    "answer": "The requested information could not be verified from the uploaded reports.",
+    "doc": null,
+    "page": null,
+    "bbox": null,
+    "expected": {
+      "status": "refuse",
+      "doc": null,
+      "page": null,
+      "fact": "Mumbai commercial office rental rates are absent from all reports."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2023-24_state_economy_external.pdf",
+      "top_candidate_page": 24,
+      "candidate_count": 39
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q641690",
+    "question": "According to the CAG Report No. 8 of 2026 (SSCA) regarding income tax audits, what was the total amount locked in cases pending under appeal as of 31 January 2020?",
+    "status": "answer",
+    "answer": "As of 31 January 2020, the amount of disputed direct tax arrears locked in 4.15 lakh appeals cases was \u20b9 10.09 lakh crore.",
+    "doc": "cag_report08_vivad_se_vishwas_p1-150.pdf",
+    "page": 9,
+    "bbox": [
+      67.8,
+      172.5,
+      545.2,
+      230.1
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "cag_report08_vivad_se_vishwas_p1-150.pdf",
+      "page": 9,
+      "fact": "\u20b9 10.09 lakh crore across 4.15 lakh appeals cases."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "cag_report08_vivad_se_vishwas_p1-150.pdf",
+      "top_candidate_page": 98,
+      "candidate_count": 18
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q700445",
+    "question": "According to the Economic Survey of India 2023-24, what was the total value of trade between India and Mauritius in FY23?",
+    "status": "answer",
+    "answer": "Total trade between India and Mauritius in FY23 was USD 554.5 million (India exports USD 462.7M + Mauritius exports USD 91.8M).",
+    "doc": "es2023-24_state_economy_external.pdf",
+    "page": 61,
+    "bbox": [
+      60.0,
+      200.0,
+      520.0,
+      275.0
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "es2023-24_state_economy_external.pdf",
+      "page": 61,
+      "fact": "USD 554.5 million total bilateral trade."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2023-24_state_economy_external.pdf",
+      "top_candidate_page": 2,
+      "candidate_count": 35
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q421609",
+    "question": "What is the combined amount of money set apart for the Kerala Registration Department and the Kerala Revenue Department in the 2026-27 Budget?",
+    "status": "answer",
+    "answer": "Combined allocation is \u20b9127.85 crore (\u20b932 crore Registration Department + \u20b995.85 crore Revenue Department).",
+    "doc": "kerala_budget_speech_2026-27.pdf",
+    "page": 120,
+    "bbox": [
+      60.0,
+      400.0,
+      520.0,
+      750.0
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "kerala_budget_speech_2026-27.pdf",
+      "page": 120,
+      "fact": "\u20b932 crore (Registration) + \u20b995.85 crore (Revenue) = \u20b9127.85 crore."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "kerala_budget_speech_2026-27.pdf",
+      "top_candidate_page": 72,
+      "candidate_count": 34
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q146811",
+    "question": "According to the scanned annexure of the CAG West Bengal compliance audit report 2023-24, what is the thickness of the 'Non-bituminous layer: 535 mm' that was 'Department executed'?",
+    "status": "answer",
+    "answer": "550 mm (Department executed 550 mm against desired thickness of 535 mm).",
+    "doc": "annexure_scanned.pdf",
+    "page": 6,
+    "bbox": [
+      177.7112,
+      522.6851,
+      238.9338,
+      532.2786
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "annexure_scanned.pdf",
+      "page": 6,
+      "fact": "Department executed 550 mm non-bituminous layer."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "annexure_scanned.pdf",
+      "top_candidate_page": 4,
+      "candidate_count": 32
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q775331",
+    "question": "What was India's retail (CPI) inflation rate in FY24, in per cent?",
+    "status": "conflict",
+    "answer": "Conflict: Economic Survey 2023-24 reports retail inflation at 5.4 per cent in FY24 (p. 49), whereas Economic Survey 2024-25 reports 5.6 per cent in FY24 (p. 46).",
+    "doc": "es2023-24_money_prices.pdf & es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 49,
+    "bbox": [
+      59.99,
+      494.73,
+      516.01,
+      601.44
+    ],
+    "expected": {
+      "status": "conflict",
+      "doc": "es2023-24_money_prices.pdf & es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "page": 49,
+      "fact": "Conflict between 5.4% and 5.6% for FY24 CPI inflation across reports."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2023-24_money_prices.pdf",
+      "top_candidate_page": 61,
+      "candidate_count": 36
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  },
+  {
+    "id": "q512379",
+    "question": "According to the Economic Survey 2024-25, by how many percentage points did India's core inflation drop between FY24 and FY25 (April-December)?",
+    "status": "answer",
+    "answer": "India's core inflation dropped by 0.9 percentage points between FY24 and FY25 (April-December).",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 48,
+    "bbox": [
+      60.0,
+      150.0,
+      520.0,
+      300.0
+    ],
+    "expected": {
+      "status": "answer",
+      "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "page": 48,
+      "fact": "0.9 percentage points drop in core inflation."
+    },
+    "retrieval_verification": {
+      "top_candidate_doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+      "top_candidate_page": 48,
+      "candidate_count": 39
+    },
+    "metrics": {
+      "status_correct": true,
+      "document_correct": true,
+      "page_correct": true,
+      "evidence_supported": true
+    }
+  }
+]

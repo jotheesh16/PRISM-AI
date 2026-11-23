@@ -1,0 +1,26 @@
+{
+  "test_name": "Dynamic Unseen PDF Upload and Explainability",
+  "document": "autonomous_energy_grid_audit_2026.pdf",
+  "pages": 3,
+  "upload_and_index_status": "PASS",
+  "questions_tested": [
+    {
+      "question": "Peak transmission efficiency reached 98.42 per cent",
+      "page": 1,
+      "status": "answer",
+      "verified": true
+    },
+    {
+      "question": "Gujarat Coastal 820 MWh Round-Trip Efficiency Table",
+      "page": 2,
+      "status": "answer",
+      "verified": true
+    },
+    {
+      "question": "Total capital expenditure Phase II expansion is \u20b91,480 crore",
+      "page": 3,
+      "status": "answer",
+      "verified": true
+    }
+  ]
+}

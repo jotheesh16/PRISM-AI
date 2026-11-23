@@ -1,0 +1,122 @@
+[
+  {
+    "id": "q710678",
+    "answer": "The requested information could not be verified from the uploaded reports.",
+    "doc": null,
+    "page": null,
+    "bbox": null,
+    "status": "refuse"
+  },
+  {
+    "id": "q951492",
+    "answer": "Chart IV.13: Trends in tomato production across regions (Page 54)",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 54,
+    "bbox": [
+      128.52,
+      484.32,
+      447.54,
+      495.32
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q665162",
+    "answer": "Chart IV.12: Trends in onion production across regions (Page 54)",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 54,
+    "bbox": [
+      127.84,
+      74.18,
+      439.47,
+      85.18
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q499069",
+    "answer": "The requested information could not be verified from the uploaded reports.",
+    "doc": null,
+    "page": null,
+    "bbox": null,
+    "status": "refuse"
+  },
+  {
+    "id": "q641690",
+    "answer": "As of 31 January 2020, the amount of disputed direct tax arrears locked in 4.15 lakh appeals cases was \u20b9 10.09 lakh crore.",
+    "doc": "cag_report08_vivad_se_vishwas_p1-150.pdf",
+    "page": 9,
+    "bbox": [
+      67.8,
+      172.5,
+      545.2,
+      230.1
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q700445",
+    "answer": "Total trade between India and Mauritius in FY23 was USD 554.5 million (India exports USD 462.7M + Mauritius exports USD 91.8M).",
+    "doc": "es2023-24_state_economy_external.pdf",
+    "page": 61,
+    "bbox": [
+      60.0,
+      200.0,
+      520.0,
+      275.0
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q421609",
+    "answer": "Combined allocation is \u20b9127.85 crore (\u20b932 crore Registration Department + \u20b995.85 crore Revenue Department).",
+    "doc": "kerala_budget_speech_2026-27.pdf",
+    "page": 120,
+    "bbox": [
+      60.0,
+      400.0,
+      520.0,
+      750.0
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q146811",
+    "answer": "550 mm (Department executed 550 mm against desired thickness of 535 mm).",
+    "doc": "annexure_scanned.pdf",
+    "page": 6,
+    "bbox": [
+      177.7112,
+      522.6851,
+      238.9338,
+      532.2786
+    ],
+    "status": "answer"
+  },
+  {
+    "id": "q775331",
+    "answer": "Conflict: Economic Survey 2023-24 reports retail inflation at 5.4 per cent in FY24 (p. 49), whereas Economic Survey 2024-25 reports 5.6 per cent in FY24 (p. 46).",
+    "doc": "es2023-24_money_prices.pdf & es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 49,
+    "bbox": [
+      59.99,
+      494.73,
+      516.01,
+      601.44
+    ],
+    "status": "conflict"
+  },
+  {
+    "id": "q512379",
+    "answer": "India's core inflation dropped by 0.9 percentage points between FY24 and FY25 (April-December).",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 48,
+    "bbox": [
+      60.0,
+      150.0,
+      520.0,
+      300.0
+    ],
+    "status": "answer"
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "row_idx": 0,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/0/pdf/document.pdf?Expires=1795437166&Signature=RSgpTRQ2zt-wwaSfxQ-gj7mP3kYme~QZSjE2JZd5kXytDtw-BCnXMGdDi-ZVhEMWb8b3XTxaXLprvex2qYBla--6PvT7D~Uq51K7bhhI8sWMUvbLv--tFfFJa8Z74iJ1nrZPB0l11B1ctE7u45zadokUMTAtyRd-n-fwNU6Hb1~UOtg8Ypath2erkPeiAG2QOuAjM07Sp68HPhHG2SXmqZ9BALnEqp~k7H1ZkrkutgXJAjfJl4S4pD2O0SOGZLi9WFl2nf6T6QluD3GzvjDi8DcgKfo33uIo-umtSgBM~eONLms8d89k3HiUPmzHmedgsz7GWS8jcpbr~TE6Mhuzsw__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 7642569,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/0/pdf/document.pdf.png?Expires=1795437166&Signature=lxX~EFYeynq4otC164~Fa4ZQzNDDIvpUpSfGYO11fZNPOEIsderz6tdeCCbs7dZQneOtC7y~HX0rJNGo33FaxdULc--SewwUN8R~k1zHOkKWJpeXWmmV7UiTMLP82IYERrLOenQyllzXbHIA-CYRDOTWns9h8ZaboERjCq-5WJjPFFNWFJeCuW~FTELB~3sYvXcZVkvgGiKFN53SwjY9p-t~UHsNgVd-hbeBXamoa3XA3c5rcVu0qllw2CwHqlrhPrupTeLSGRxG1fdrfUowVxU99gWgfj3snQAyBptlbtE-UmVHGppmlTYX0ZB40Q33gCfUhKtMVgA9Q6kWgv2bzA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 842,
+          "width": 596
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 1,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/1/pdf/document.pdf?Expires=1795437166&Signature=kfgYCN-~b0u8S3E9DlEwtFrGJyo~RKZgr-vGlK0u5Ra1YXBSosa8-Ix8~4091yShirfyb-HX2GN9rVTgZdS9r4tP5IfoS24zsZ1ARSu5XXg3o1k2zfTj7y2Hgj8kSg4kWySq~tO04MtPeWYhZeW~8pdw4~vkxmUDaHXOiT8EvGjW9jhB8LoeYkzBJox7SIK2~49MrpWh8crvCcol1dVrxcc5ofQsgrnnAlXYhcnJGS4Zi9v8-5Vn3pmCkF3W8qqaEfKuSP8UICMD9q5wUNJv1K9lZ0kxtcpF9SJAeCrzUuoVztF3VS~-mspM9v9t8dQ8KYaFr3uZPyTtKBvFxI7-HA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2441407,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/1/pdf/document.pdf.png?Expires=1795437166&Signature=nEo9Ojr3GBwXmcsBYr782D9fTLmlvYSQG8y8C4ZxVFuAZRDPVRX9mE7jb815WYvT5zCcWD3Y~Dr9HEctPecByoe9SSgx-GzCSJSyynZGLTtlhNuHR-1egm2-az73wtM3svl8ekgywpGLRRIQsvbJ477kotS1JeofbWBd~SXB259cBwqC61--yUX8m3A5OBzvjy4i3pmjXG68t3BB~Wa~9ZvgJEm9wIYTIuEetEPbWJo9GKtiiV5ZDg8GirEDBYzPU2AzQdsQFmX2wgQ7~hAmf7ywQSc0T76has7VytVaYkE9Cgueog1Ptg3s81b8rUHY1lSFEhO~eWVYyhDOpIRYXg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 844,
+          "width": 598
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 2,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/2/pdf/document.pdf?Expires=1795437166&Signature=t2yCWaDrgAU35Fs04xmd6d~9se~o-3A5B-ylnktJbcjex5GWW4PA5HKaX0-bdbC~mtTNO3FlcUcCHzYwuOFz3H0p0C21gwjd4idpiqvMH24uKPQxc7rZClQGWiufYpU57CxSVerQTr2K9zUFl-gmmba9mtN455fRh-NwdXLFeEQgEZz9jrijV5M8o9aDjwCJT9ZMDcCl6tY2~HDv3Im1gnEoNV6wtNDMNJkpHL9~YDEb6MTRksZyPPO4RP4dvoZCW86aq2GZMqxWec3RmCLL-fXOQZvJMb9AvM1pxpNM2P-JUtCO9loQ0XoPqw6dhMPlOVvAS0wb52z8KWARURqv7g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2559397,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/2/pdf/document.pdf.png?Expires=1795437166&Signature=NJy7H-yuB~UU9QrwCF9DoV4DQuvHVLi~9XSLds67InpEIJsnXHjm8-kkdiOEOlzYfD353Gx0~S4lGxDGHolj6EgzNpG7LnmpMuRvmyg8cmpxiSt4ksCaPDnpDPdzEqTvi-yhq6fsEzI1H6wgEsp8ChMCvR3fWBzJxb5aHKF7MJb4vnfflAL8LlbQN-xP8-ZgzAT-yTUQHVH5wX3-sKvUisWGNeNhncpJWTHN2CoS0-F6p5jg9mbcw3s1RidURDs~cqTROGtD-4IUpsuJtszExIMOSzfU59i~BF8CiiCuRsThvu47uwdBlVebXQcHlvBctJQ63TL0sXlF1u68HxpQwA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 844,
+          "width": 598
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 3,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/3/pdf/document.pdf?Expires=1795437166&Signature=kd7mVomkVve8zAcUF337cATh-~sTPUM1BQEM~MNRpuuKFLVt-Afrz0ymVlocls28ObF208I-~mSJU0vpr0u0Y-wz06nZZb1ct3cM7ZBEmoL-pFQmm52HvLnefDvbVHYNCjE7OLva7ayWq-RS-iNhAN-~jNQMuTYFS5hQnP9JMNi7OgnWseqcvUUdHm9~1kgfqlwkJmaBisnt9xYAAOwlnmBypiOWYkCLitSS4uNEg5uvMGP3tvfByVfx9XW2n2NREPC~j-USm0RykE5WBOCHuE23YVDLTHnEQXWP-WyCu2LAXFvpTY6INLL3A-Vx7-1a0X8ShCwMzvp4anHfaKzYvA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 13442106,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/3/pdf/document.pdf.png?Expires=1795437166&Signature=AnPVuKDrWcaSJ3is6SJlCes3Pz-neB8NccDKI~ULgP~tLzbbmKBHQvdIqOI~QdKagA9y8figcoXWBg4ckhd087NBdhSo1cS-2aT~zm6pp7Lp6nvSWQoH7MwnGT-PxaHnjx9ZGOvp5pXrAcQyCdw~km-Vr84wPFUlNe~GSWck6NPEGqMMGI4bg-i39dYqIRNK~C5RgfKfDjhVAIwWJKhcwkp~X0XGpAa9i-NM7i9Y5OypvCHhFkNy2~X4Hf9LaET7-TVpLPNL3WIjNZnHFWJiWgOtrfleBVv~8txpqWhooE2LRk9Hiy62HADRl5GBdXSvJ7BUtojvGdZzGJlTOIUQag__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 857,
+          "width": 611
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 4,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/4/pdf/document.pdf?Expires=1795437166&Signature=d-q~CzrlxADIvqytBp2wUjReBNWbduaS9g1~pruRj23NZqXkxXgT8jQXNa0MBKcWSYDYq~3~n5Uawg~Ls1AwN8rFIvw5wqKpRYjc2DzDfEDCW~5bDJz0YEJH9jy-fD4Ral7FEzCiyzIz1WZBc4Nhi9WsL9mYj3~gG14u8Pa4X9s3C7SBYp41H4FUFDBniwtcowWFva46-rYDGJxB1NS8hdDg4HXMKN~lqVdRAAAiTm-5lmoTxPyfJ4Xi3Ykod6gqcnqUO-1zR7iXL913QVIPdyY8IOVXHf3UBKW83ZvuQsdXgu40OAE6ZSgcxFB1MhukvmPyd0VF6qJiuHFS~eiV3g__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2337366,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/4/pdf/document.pdf.png?Expires=1795437166&Signature=f0bm~kpqOfTc8bJ1PKeYHq333b5g0RzTn4vjx6lgSc1qWvp3cLuBUqnSc7tARzSdOuM~zTnH6dU3NGm5v3ccMuN3BXFmBVaAsG12QcLc3QsUfJtFvIFb8NvIj4Y37~CnAI1xjlc1xrw62UzCWXxtcWcMh12c-Etz0EMtivn~mr6Cr~11FnaooVXSSYzGE~di~ERJ8ceJ1pF2JeFc4nKF2WKRBC2dCdfz-cJDdrwBvgJTMF~yXd8OSrvlUNK12tOoHCdRDmjLuZzA9U3JvTbElqfuKRcedIh0121v0Y~w-hB~fpNoxJGLyFvtaPvduHxWHtEcTPc56LYFE49kzCcpgg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 792,
+          "width": 576
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 5,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/5/pdf/document.pdf?Expires=1795437166&Signature=dF7d8-ygt4IGl10iJ-rWJaPdtq6vRdh-2rEz0ekXwYqjuj~ZwZAYD7axXB5wvjPWhEe8y~dkY9HARJuS5P-lrYjnmi0KCCXexmBRXlgylRvtMU3JRQfIoSdTbliDBu2GNsu3iJGiUaWJbw00hhKPr2l7z-~sBay5NOUW5NaQoXX34Wygv134nTVYM4KyPEoD4m76j41HtPsWp6o7V5j82S3Z5RAMiGUFh6Ro3RJKvz5sR0TFjepxQiCDoe8klvVAg~uVOUCrwNFk0o2PF2QTlo-lM29USJRXebTcZeoSdX6XJeKadhX-JxeQ-tUJjPGg2b~jtAD~EP-Tf7LO-ihAww__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2993014,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/5/pdf/document.pdf.png?Expires=1795437166&Signature=c9LY2uxB7-wbHYQyYDhm~f11eDhkB72VRgt1w9Bo0FVk1X-6M9V4ohOawniIWCA-pXhasLAbn9bxvvuXjTrWtj60aVsLta-eTaDnnS7ehdUOxGwv38LPvG0~gLeNyN15-YSIhRASs2DfIzabL71JgXq17hLZusPJ4o7ERgImEHBvni6eX5Hv~FnU1TtW~CqceeYCIN2lsGXBR9vfqgulYITXwFEzfxrMwS600Ql0bRfyT1I209CmkPLCp2Z88EjIUu3jKeyhb5t9R~VM11q6G-xgI7JHOW9a-7nX4cSeAy3QK4~tmzYX7bYhd5jJ8z20zhXLvkk4ad-V3~JahBsUOA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 792,
+          "width": 576
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 6,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/6/pdf/document.pdf?Expires=1795437166&Signature=aFjUyrK1MC~MnghVYxI4qxZge3E9iMKK84VZnFOEeePi2tfX6~VeKSYV1lSqEQpaKoSbjSixjgKXsAJ94WD2QcrJGKnMGuNO27Yd4-0yziK9TYU1jSChVKQfl1jzXHdpFq~c00ikohPNu1n-6Xz8ADTjQsZ7UB6U7lfSH7~uvlLtvIq0S0thNezt2H~G2qEDM53dpWXXFTMvTp2bYaykfqBJlfWWeGWdflH-fFNL2OC5fu5xYLaM~Wv4W2qToNHgnE-8CDb8hbQqqCHKMbXbvP6AI8fgCLW-5Z7T5esfn6nJgGi~MIxWD~6Dj2j8ubUFQvS1T09cneeqCTSp68QhdA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2130732,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/6/pdf/document.pdf.png?Expires=1795437166&Signature=FlD8tCAv2Tddg3ob65EJg-yw7S3T8qVKCLmoAzqbFFCaCVI9uaagJh7r0A8Hk1wvCD83RnuxplVWfTBWX049p89fRmlxBKqnZp1pXZbTPZtMmvVuShqvq7FGXF3qCNs4MffNDOPfU3i6SmUAqjOgOxIVytiN8JiwAyPpCq7vBBD6VemfW~5QQXhE~Tw1ewGow6Lrvlrdfp19DVkf3VwEMGGIBLyYJRc0OYVGoBjWkHOgs6OuCt4zXrd79OPoPzIz92gwVWm9nyVx0h8tQDP2JFifsafmRfb7dy6~0myOL6F2mBYA-3kjijzGBSMDdCZ3RHz~DzcOIoxJtpLGuRhi1Q__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 792,
+          "width": 576
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 7,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/7/pdf/document.pdf?Expires=1795437166&Signature=YEjaG3wOFebAjL~B9lcjPHnjXnREJPEqHGvbU~GawgNMISmJqKewRMCiopRnXmMZy11ZxNEFmsWN95UiOtRarh-D6R0kvFRZE20M7k8-q1RzykuGwJT65hhC2Y~zt08URcLlt1PvunJRD4FkTnnctdJ98~wYvrnkXsRY-3YZ4uNkFCIlOP-xtHlzcoK3yTVYyVh0y~T9BX-pLAzlgs6IxGLr05G8Dw5726d8MSDJYn0af7MvBxLISdtNNi302nBi4sXuWow3MP~D6M9TddkULvIz8XSjvjL0T7s1yPi5qIPoiro1p-i9HBsNcxUIEyCfVvhJQ04gvD7hHgNP-GYUrA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 2759956,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/7/pdf/document.pdf.png?Expires=1795437166&Signature=swytmwJAjKgD1zk6stLuZsxwETbHCgricaRbX5IBXsr5-5ZbOV8Fiho9jb0fg6sBm9XkD8qwp9BSVQJ8~dmDowGyvnlmQ1je-sqfYHE3LcLu1Tiu-etDtJwyDkcs335NVKAhNwMlh230p6D3j3MRMRJLb~S9K9VDDkxibMCOcPV2yerzfW8Y2IHRQZU3TTjW403K9zNwoQUSuhQ~pn1e5cQB2-~1tTgseM67rdJC1358he25uejCwZU91ButrH5MBHwYpH~TEKzhSWSY6NVoNkRhqlGEF-1H4cw4dtJY7ANclOwBhGTCdgzb4bYQi8AOVbop2UdUy2H16mJDxfH3Fg__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 792,
+          "width": 576
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 8,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/8/pdf/document.pdf?Expires=1795437166&Signature=T78e0QPkMR-Edjlvs-KyyD1d3fmopGkNHMup1-zwjtlfUU98jSYhGrntduGlCNTbqmE6aBduPqr9kJQrvf3MnONzxHSuPA1pHGMn3nknTjXnhiD5RFDEyK6b6hBPcvngEEnYQVX5b3mCnUfQDok2UHodeAnpIgHnKXOR9C2QiJZnjZNo-PFQiQ3n-6D-CGw4VwmONKdtakiazSwAPPMwo83KuoQwrII3bhcVpYEegrjAtWRKGdyia4vGgUL3I3OAZMO47A5rU0KP4pZW1umFUQw0x4ZpmD~ClgprkjvuGP1QJoyEeKldFXJ0iKL4pyLUHrsKcQQELH0AFmZYDBwABA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 15703384,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/8/pdf/document.pdf.png?Expires=1795437166&Signature=N5BWKzwYtz14Ky1u5FEgDXhnlGKlZQVyVySgMMmylKd1sZhAdmr2Qml5Apmbl1~1unT4ZTfwT6Ag8Qxkoj5mm2nw7j9-~NXdARvrjQz3eHBecPmd8JrYWzyElvWWV2u38eEyUmMXMUZWfAg3-9C5xB4dON8cgQ8kFStG6dLrk-x6dx~Ym3VWLLHya6HMTD8TI8UwuuCjNhn8XCjYbNEsoi0qwpF4aO1PgH4IzeygKZLy~uA6vqfscOwbz-grCd4bpaP2FLKlfACYcWjvEjl-jpsA6ndMqVxYxmCp7iyt8-amSRe8mecluqSk6~ZNYLOatmCl9bu0NJxmw20Gfh7VLA__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 908,
+          "width": 1271
+        }
+      }
+    },
+    "truncated_cells": []
+  },
+  {
+    "row_idx": 9,
+    "row": {
+      "pdf": {
+        "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/9/pdf/document.pdf?Expires=1795437166&Signature=Hae1GI1DcJcIX-yuZkGp-6618ygNsutxDZbjPymYBP09SuAPzkNbGHa6yuaSSrbzOJLO6cbxIPqpoNnruHEfN4uGyRig5JEJb~BYAWwIVfPJebKKzze~6zA8B8PFtGhsH4LoF4npBRQGMBGMFCN5bXSr0L~cmI-gt3EqbWUEL2zbauN8X82J7DxQzhg-xmVOkMLNYXKWb7PWuaMstv6InCkJ-ivwIGNrjRgNjItgciDCLqorZ66I7kaHmiPGZQrWirDKODwqPSZzX2rWhuqcMGSLlfv-L4OOUn2Q8sJy3cxZwt7b7sxnuQcvAw41i3T1Bzv~sr9Bf2q8hWsNAr~tug__&Key-Pair-Id=K3C0L9WB6U5DUC",
+        "size_bytes": 3069437,
+        "thumbnail": {
+          "src": "https://datasets-server.huggingface.co/cached-assets/Tarakeshwaran/CIT_Hackathon_PS03_rag/--/c9f19fc4e6f9858e3b01bdf6ac80f645400538fa/--/default/train/9/pdf/document.pdf.png?Expires=1795437166&Signature=J3gUoSUzpNvm0QGX-FoxsYgAOmecXdIXZD37fHr2~qKolenWNtD8hvnttVSG6f5CjWOxLUAUSo~XFDhIvV--C6pXconYtgVkkGjFz-T6KcCWwQ2QDoEOydmHLl1TTqyza9W-7gkL9Bupu~bxF91KukwNOJHzz3dH2-pocRGw1sum4OqrhJ5tqyNIU~WUGx31XPXzSccRLb-Ehtyjooykc8P-2t1HCXWfsG4cmJ-YxyjZeja9skM5ByuzUoVIqKgZuz71ZnDDPIIcmRdeEPhBz8on-0mJ8L4Vfz4JXwYuX8V4N7gWqvIqDbHamQ6lHqfHIAb5GuniH9r0O1tdUpcSzQ__&Key-Pair-Id=K3C0L9WB6U5DUC",
+          "height": 761,
+          "width": 540
+        }
+      }
+    },
+    "truncated_cells": []
+  }
+]

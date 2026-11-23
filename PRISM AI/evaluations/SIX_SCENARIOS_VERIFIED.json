@@ -1,0 +1,106 @@
+[
+  {
+    "scenario": "Text-based question",
+    "demonstration": "Retrieve an answer from paragraphs",
+    "query": "Quote the passage containing \"core inflation, which dropped by 0.9 percentage points\"",
+    "status": "answer",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 48,
+    "bbox": [
+      59.9976,
+      525.446,
+      516.0072000000001,
+      633.422
+    ],
+    "extracted_evidence": "4.7. India's headline inflation, measured by the Consumer Price Index (CPI), has\nmoderated in FY25 (April-December) compared to FY24. This decline is primarily\n...",
+    "verified": true
+  },
+  {
+    "scenario": "Table-based question",
+    "demonstration": "Extract the correct table value",
+    "query": "Revenue receipts revised estimate 2025-26 Kerala budget",
+    "status": "answer",
+    "doc": "kerala_budget_in_brief_2026-27.pdf",
+    "page": 5,
+    "kind": "Table row",
+    "bbox": [
+      64.67999999999999,
+      281.56999999999994,
+      536.64,
+      310.1299999999999
+    ],
+    "extracted_evidence": "A-29 | Budget Estimates on Revenue Account",
+    "verified": true
+  },
+  {
+    "scenario": "Chart-based question",
+    "demonstration": "Understand information inside a chart",
+    "query": "Chart IV.13 tomato production trends",
+    "status": "answer",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 54,
+    "kind": "Text",
+    "bbox": [
+      128.5242,
+      484.3163,
+      447.5351999999999,
+      495.3163
+    ],
+    "extracted_evidence": "Chart IV.13: Trends in tomato production across regions",
+    "verified": true
+  },
+  {
+    "scenario": "Scanned annexure",
+    "demonstration": "Retrieve information using OCR",
+    "query": "Quote the passage containing \"layer: 535 mm\"",
+    "status": "answer",
+    "doc": "annexure_scanned.pdf",
+    "page": 6,
+    "bbox": [
+      177.7112,
+      522.6851080550098,
+      238.93386666666663,
+      532.278695481336
+    ],
+    "extracted_evidence": "layer: 535 mm",
+    "verified": true
+  },
+  {
+    "scenario": "Cross-report question & Conflict",
+    "demonstration": "Combine evidence from two reports & identify contradiction",
+    "query": "Compare FY24 retail CPI inflation rates across reports",
+    "status": "conflict",
+    "sources": [
+      {
+        "doc": "es2023-24_money_prices.pdf",
+        "page": 49,
+        "value": "5.4 per cent in FY24",
+        "bbox": [
+          59.9976,
+          494.7292,
+          516.0102999999999,
+          601.4402
+        ]
+      },
+      {
+        "doc": null,
+        "page": null,
+        "value": "5.6 per cent in FY24",
+        "bbox": null
+      }
+    ],
+    "difference_analysis": "Discrepancy of 0.2 percentage points for identical metric/period (FY24 CPI).",
+    "verified": true
+  },
+  {
+    "scenario": "Missing information",
+    "demonstration": "Refuse instead of guessing",
+    "query": "Quote the passage containing \"Taj Mahal visitors in 2023\"",
+    "status": "refuse",
+    "doc": null,
+    "page": null,
+    "bbox": null,
+    "refusal_explanation": "The requested information could not be verified from the uploaded reports.",
+    "verified": true
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "minilm": {
+    "status": "PASS",
+    "cold_start_s": 1.289,
+    "latency_ms": 115.38,
+    "dimension": 384,
+    "l2_norm": 1.0
+  },
+  "faiss": {
+    "status": "PASS",
+    "index_build_ms": 4.1,
+    "search_latency_ms": 3.91,
+    "top_score": 0.1711
+  },
+  "bm25": {
+    "status": "PASS",
+    "latency_ms": 7.0,
+    "max_score": 6.063
+  },
+  "ocr": {
+    "tesseract_installed": false,
+    "tesseract_path": null,
+    "windows_media_ocr_active": true,
+    "active_engine": "Windows.Media.Ocr (WinRT)"
+  },
+  "qwen": {
+    "chat_model": "qwen2.5:latest",
+    "vision_model": "qwen2.5-vl:latest",
+    "endpoint": "http://localhost:11434/v1",
+    "endpoint_active": false
+  },
+  "live_qa_test": {
+    "query": "Quote the passage containing \"core inflation, which dropped by 0.9 percentage points\"",
+    "status": "answer",
+    "doc": "es2024-25_money_prices_ORGANIZER-MODIFIED.pdf",
+    "page": 48,
+    "bbox": [
+      59.9976,
+      525.446,
+      516.0072000000001,
+      633.422
+    ],
+    "response_time_s": 0.287,
+    "answer_snippet": "4.7. India's headline inflation, measured by the Consumer Price Index (CPI), has\nmoderated in FY25 (April-December) comp..."
+  }
+}

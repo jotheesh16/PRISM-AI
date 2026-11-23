@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#163f43" />
+    <title>PRISM AI · Research workspace</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#home" aria-label="PRISM AI home"
+        ><svg viewBox="0 0 38 38" aria-hidden="true">
+          <path
+            d="M3 31 17 5l17 26zM17 5l4 26M9 21h19"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.1"
+          /></svg
+        >PRISM <small>AI</small></a
+      ><span class="divider"></span
+      ><label class="sr" for="space">Active workspace</label
+      ><select id="space"></select
+      ><button
+        id="newspace"
+        class="icon"
+        title="Create workspace"
+        aria-label="Create workspace"
+      >
+        ＋
+      </button>
+      <div class="topend"><span class="led"></span> Local workspace</div>
+    </header>
+    <div class="shell">
+      <aside>
+        <nav id="nav"></nav>
+        <button class="configlink" data-view="settings">
+          ⚙ &nbsp; Configuration
+        </button>
+      </aside>
+      <main id="main"></main>
+    </div>
+    <input
+      id="files"
+      type="file"
+      multiple
+      accept="application/pdf,.pdf"
+      hidden
+    />
+    <dialog id="viewer"><div id="viewerbody"></div></dialog>
+    <dialog id="formdialog">
+      <form method="dialog" id="spaceform">
+        <h2>New workspace</h2>
+        <label
+          >Workspace name<input
+            id="spacename"
+            required
+            maxlength="80"
+            autocomplete="off"
+        /></label>
+        <div class="actions">
+          <button type="button" id="cancelspace">Cancel</button
+          ><button class="primary">Create workspace</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" role="status" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
