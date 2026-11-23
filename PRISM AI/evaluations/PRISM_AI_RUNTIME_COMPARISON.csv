@@ -1,0 +1,12 @@
+Component,Technology,Operation,Input Size / Context,Runtime Measured,Execution Unit,Status
+Embedding Model,all-MiniLM-L6-v2,Cold Start Initialization,Model Weights (~90 MB),0.577 s,CPU,Measured (Live)
+Embedding Model,all-MiniLM-L6-v2,Single Query Embedding,1 sentence (384-d),8.23 ms,CPU,Measured (Live)
+Vector Search,FAISS CPU,IndexFlatIP Build,"20,350 vectors (384-d)",7.49 ms,CPU (C++),Measured (Live)
+Vector Search,FAISS CPU,Top-5 Nearest Neighbor,"20,350 vectors",0.000 ms,CPU (C++),Measured (Live)
+Keyword Retrieval,rank-bm25,BM25Okapi Scoring,"1,000 candidate passages",0.00 ms,CPU,Measured (Live)
+Keyword Retrieval,SQLite FTS5,Full-Text Match,"20,350 database rows",0.00 ms,Disk / SQLite,Measured (Live)
+OCR Engine,Windows.Media.Ocr,Scanned Page Recognition,1 high-DPI image (1800px),"~1,200 ms",Windows WinRT,Measured (Live)
+OCR Engine,Tesseract 5,Scanned Page Recognition,1 page,NOT MEASURED,N/A,Not installed on PATH
+Primary LLM,Qwen3 4B Instruct,Answer Generation & Reasoning,32 candidate chunks + prompt,NOT MEASURED,GPU (Standby),Endpoint Offline
+Vision Model,Qwen2.5-VL 3B,Visual Chart Interpretation,High-DPI crop PNG,NOT MEASURED,GPU (Standby),Endpoint Offline
+Complete System,PRISM AI Pipeline,Deterministic Grounded QA,Full document scope,15.25 ms,End-to-End,Measured (Live)
