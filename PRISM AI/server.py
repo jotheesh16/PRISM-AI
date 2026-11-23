@@ -39,8 +39,20 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Access-Control-Allow-Origin", os.getenv("PRISM_CORS_ORIGIN", "*"))
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
         self.end_headers()
         self.wfile.write(body)
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", os.getenv("PRISM_CORS_ORIGIN", "*"))
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def read_body(self, limit):
         try:
@@ -119,6 +131,8 @@ class Handler(BaseHTTPRequestHandler):
                     "/style.css": "text/css",
                 }[path],
             )
+        if path == "/api/health" and method == "GET":
+            return self.reply({"status": "ok", "service": "PRISM AI", "version": "1.0.0"})
         if path == "/api/config" and method == "GET":
             return self.reply(config())
         space = param("space", "main")
@@ -306,9 +320,10 @@ if __name__ == "__main__":
     with connect() as db:
         for row in db.execute("SELECT id FROM docs WHERE state='queued'"):
             POOL.submit(process, row[0])
-    port = int(os.getenv("PRISM_PORT", "8765"))
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"PRISM AI is ready at http://127.0.0.1:{port}", flush=True)
+    host = os.getenv("PRISM_HOST", "0.0.0.0" if (os.getenv("PORT") or os.getenv("DOCKER")) else "127.0.0.1")
+    port = int(os.getenv("PORT", os.getenv("PRISM_PORT", "8765")))
+    server = ThreadingHTTPServer((host, port), Handler)
+    print(f"PRISM AI is ready at http://{host}:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1,0 +1,57 @@
+# Git & Version Control
+.git/
+.gitignore
+.gitattributes
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Development environments
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PRISM Local Datasets, Reports, and SQLite Databases (mounted via volumes)
+data/
+reports/
+evaluations/
+scratch/
+test_*.py
+windows_ocr.ps1
+start*.cmd
+
+# Local environment secrets and credentials
+.env
+.env.local
+.env.*.local
+
+# Logs and temporary files
+*.log
+*.tmp

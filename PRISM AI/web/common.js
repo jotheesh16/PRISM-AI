@@ -2,13 +2,22 @@ let space =
   new URLSearchParams(location.search).get("space") ||
   localStorage.getItem("prism-space") ||
   "main";
+let apiBase =
+  (typeof window !== "undefined" && window.__PRISM_API_BASE__) ||
+  localStorage.getItem("prism-api-base") ||
+  "";
 export const getSpace = () => space;
 export function setSpace(id) {
   space = id;
   localStorage.setItem("prism-space", id);
 }
+export const getApiBase = () => apiBase;
+export function setApiBase(base) {
+  apiBase = (base || "").trim().replace(/\/+$/, "");
+  localStorage.setItem("prism-api-base", apiBase);
+}
 export const url = (path, params = {}) =>
-  path + "?" + new URLSearchParams({ space, ...params });
+  (apiBase || "") + path + "?" + new URLSearchParams({ space, ...params });
 export async function api(path, method = "GET", body, params) {
   const res = await fetch(url(path, params), {
     method,

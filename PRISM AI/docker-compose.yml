@@ -1,0 +1,46 @@
+# ==============================================================================
+# PRISM AI — Docker Compose Configuration (Production & Local Development)
+# ==============================================================================
+services:
+  prism-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: prism-ai:latest
+    container_name: prism-ai-backend
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    environment:
+      - PORT=8765
+      - PRISM_PORT=8765
+      - PRISM_HOST=0.0.0.0
+      - PRISM_DATA=/app/data
+      # When connecting to Ollama running on the host machine:
+      - PRISM_API_BASE=http://host.docker.internal:11434/v1
+      - PRISM_API_KEY=
+      # Primary reasoning LLM
+      - PRISM_CHAT_MODEL=qwen3:4b
+      # Multimodal vision LLM
+      - PRISM_VISION_MODEL=qwen2.5vl:3b
+      # Embedding model
+      - PRISM_EMBED_MODEL=all-minilm
+      # Tesseract OCR engine
+      - TESSERACT_CMD=tesseract
+      - PRISM_OCR_LANG=eng
+    extra_hosts:
+      # Allows the container to communicate with host Ollama/services on Windows & Linux
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - prism-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8765/api/config"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  prism-data:
+    name: prism-ai-data
+    driver: local
