@@ -41,10 +41,12 @@ def get_minilm():
 
 
 def parse_json_response(raw_text):
-    """Robustly parse JSON response from LLMs, handling markdown code fences."""
+    """Robustly parse JSON response from LLMs, handling markdown code fences, unescaped characters, and truncated output."""
     if not isinstance(raw_text, str):
         raise ValueError("Expected string input for JSON parsing.")
     text = raw_text.strip()
+    # Strip thinking tags <think>...</think> if emitted by reasoning models
+    text = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
     # Strip markdown code blocks ```json ... ```
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
@@ -55,6 +57,34 @@ def parse_json_response(raw_text):
         match = re.search(r"(\{[\s\S]*\})", text)
         if match:
             text = match.group(1)
+    # Attempt 1: Standard JSON parsing with strict=False (allows newlines/control characters)
+    try:
+        return json.loads(text, strict=False)
+    except Exception:
+        pass
+    # Attempt 2: Auto-repair unclosed quotes or missing closing braces from truncated tokens
+    repaired = text
+    quotes = len(re.findall(r'(?<!\\)"', repaired))
+    if quotes % 2 != 0:
+        repaired += '"'
+    if not repaired.rstrip().endswith("}"):
+        repaired += "}"
+    try:
+        return json.loads(repaired, strict=False)
+    except Exception:
+        pass
+    # Attempt 3: Regex extraction for {"evidence": "..."} content
+    ev_match = re.search(r'"evidence"\s*:\s*"((?:[^"\\]|\\.)*)', text)
+    if ev_match:
+        extracted = ev_match.group(1)
+        extracted = extracted.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+        return {"evidence": extracted}
+    # Attempt 4: Fallback regex for unquoted or truncated values
+    ev_fallback = re.search(r'"evidence"\s*:\s*([\s\S]+)', text)
+    if ev_fallback:
+        val = ev_fallback.group(1).strip().rstrip('"}').strip('"')
+        return {"evidence": val}
+    # Final attempt: let standard json.loads raise with clear error
     return json.loads(text)
 
 
@@ -93,6 +123,11 @@ def chat(model, system, message):
         ],
         "response_format": {"type": "json_object"},
         "temperature": 0.0,
+        "max_tokens": 4096,
+        "options": {
+            "num_predict": 4096,
+            "temperature": 0.0,
+        },
     }
     result = call("chat/completions", body)
     try:
