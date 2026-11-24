@@ -38,7 +38,7 @@ def get_minilm():
 
 
 def parse_json_response(raw_text):
-    """Robustly parse JSON response from LLMs, handling markdown code fences, unescaped characters, and truncated output."""
+    """Robustly parse JSON response from LLMs, handling markdown code fences and control characters while rejecting truncated output."""
     if not isinstance(raw_text, str):
         raise ValueError("Expected string input for JSON parsing.")
     text = raw_text.strip()
@@ -54,44 +54,18 @@ def parse_json_response(raw_text):
         match = re.search(r"(\{[\s\S]*\})", text)
         if match:
             text = match.group(1)
+        else:
+            raise ServiceError(f"Model returned partial or non-JSON output: {text[:100]}")
     # Attempt 1: Standard JSON parsing with strict=False (allows newlines/control characters)
     try:
         return json.loads(text, strict=False)
     except Exception:
         pass
-    # Attempt 2: Auto-repair unclosed quotes or missing closing braces from truncated tokens
-    repaired = text
-    quotes = len(re.findall(r'(?<!\\)"', repaired))
-    if quotes % 2 != 0:
-        repaired += '"'
-    if not repaired.rstrip().endswith("}"):
-        repaired += "}"
-    try:
-        return json.loads(repaired, strict=False)
-    except Exception:
-        pass
-    # Attempt 3: Regex extraction for {"evidence": "..."} content
-    ev_match = re.search(r'"evidence"\s*:\s*"((?:[^"\\]|\\.)*)', text)
+    # Attempt 2: Regex extraction for complete closed {"evidence": "..."} content
+    ev_match = re.search(r'^\s*\{\s*"evidence"\s*:\s*"([\s\S]*)"\s*\}\s*$', text)
     if ev_match:
-        extracted = ev_match.group(1)
-        extracted = extracted.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+        extracted = ev_match.group(1).replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
         return {"evidence": extracted}
-    # Attempt 4: Regex extraction for research chat {"status": "...", "answer": "..."}
-    ans_match = re.search(r'"answer"\s*:\s*"((?:[^"\\]|\\.)*)', text)
-    if ans_match:
-        extracted_ans = ans_match.group(1).replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
-        status_match = re.search(r'"status"\s*:\s*"([^"]+)"', text)
-        st = status_match.group(1) if status_match else "answer"
-        return {"status": st, "answer": extracted_ans, "citations": []}
-    # Attempt 5: Fallback regex for unquoted or truncated values
-    ev_fallback = re.search(r'"evidence"\s*:\s*([\s\S]+)', text)
-    if ev_fallback:
-        val = ev_fallback.group(1).strip().rstrip('"}').strip('"')
-        return {"evidence": val}
-    ans_fallback = re.search(r'"answer"\s*:\s*([\s\S]+)', text)
-    if ans_fallback:
-        val = ans_fallback.group(1).strip().rstrip('"}').strip('"')
-        return {"status": "answer", "answer": val, "citations": []}
     # Final attempt: let standard json.loads raise with clear error
     return json.loads(text)
 

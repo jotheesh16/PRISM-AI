@@ -18,7 +18,25 @@ export default async function handler(req, res) {
     "http://localhost:8765"
   ).replace(/\/+$/, "");
 
-  const targetUrl = `${backendBase}${req.url}`;
+  let requestPath = req.url || "";
+  if (requestPath.includes("[...path]")) {
+    const segments = Array.isArray(req.query?.path)
+      ? req.query.path.join("/")
+      : req.query?.path || "";
+    const queryParams = new URLSearchParams();
+    for (const [k, v] of Object.entries(req.query || {})) {
+      if (k !== "path") {
+        if (Array.isArray(v)) v.forEach((val) => queryParams.append(k, val));
+        else queryParams.append(k, v);
+      }
+    }
+    const q = queryParams.toString();
+    requestPath = `/api/${segments}${q ? "?" + q : ""}`;
+  } else if (!requestPath.startsWith("/api/")) {
+    requestPath = `/api${requestPath.startsWith("/") ? "" : "/"}${requestPath}`;
+  }
+
+  const targetUrl = `${backendBase}${requestPath}`;
 
   // Forward request headers, excluding host
   const headers = {};

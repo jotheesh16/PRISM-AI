@@ -15,6 +15,8 @@ os.environ['PRISM_EMBED_MODEL'] = ''
 os.environ['PRISM_VISION_MODEL'] = ''
 os.environ['PRISM_CHAT_MODEL'] = 'test-model'
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import models
 import store
 import research
