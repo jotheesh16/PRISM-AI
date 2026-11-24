@@ -96,40 +96,50 @@ def run_migration():
     # 3. Migrate Evidence Chunks (in batches of 100)
     evidence_rows = db.execute("SELECT * FROM evidence").fetchall()
     total = len(evidence_rows)
-    print(f"Migrating {total} evidence chunks...")
-    batch = []
-    for i, r in enumerate(evidence_rows, 1):
-        item = {
-            "id": r["id"],
-            "doc": r["doc"],
-            "page": r["page"],
-            "kind": r["kind"],
-            "body": r["body"],
-            "w": r["w"],
-            "h": r["h"],
-            "model": r["model"],
-        }
-        # Parse bbox json if available
-        if r["bbox"]:
-            try:
-                item["bbox"] = json.loads(r["bbox"]) if isinstance(r["bbox"], str) else r["bbox"]
-            except Exception:
-                item["bbox"] = None
-        # Convert vector blob to float list
-        if r["vector"]:
-            try:
-                vec = np.frombuffer(r["vector"], dtype=np.float32).tolist()
-                item["vector"] = vec
-            except Exception:
+    try:
+        check_req = urllib.request.Request(f"{SUPABASE_URL}/rest/v1/evidence?select=id&limit=1", headers={"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Range": "0-0", "Prefer": "count=exact"})
+        with urllib.request.urlopen(check_req, timeout=10) as c_res:
+            crange = c_res.headers.get("Content-Range", "")
+            if "/" in crange and int(crange.split("/")[1]) >= total:
+                print(f"Evidence chunks already migrated ({total} records in Supabase). Skipping.")
+                evidence_rows = []
+    except Exception:
+        pass
+    if evidence_rows:
+        print(f"Migrating {total} evidence chunks...")
+        batch = []
+        for i, r in enumerate(evidence_rows, 1):
+            item = {
+                "id": r["id"],
+                "doc": r["doc"],
+                "page": r["page"],
+                "kind": r["kind"],
+                "body": r["body"],
+                "w": r["w"],
+                "h": r["h"],
+                "model": r["model"],
+            }
+            # Parse bbox json if available
+            if r["bbox"]:
+                try:
+                    item["bbox"] = json.loads(r["bbox"]) if isinstance(r["bbox"], str) else r["bbox"]
+                except Exception:
+                    item["bbox"] = None
+            # Convert vector blob to float list
+            if r["vector"]:
+                try:
+                    vec = np.frombuffer(r["vector"], dtype=np.float32).tolist()
+                    item["vector"] = vec
+                except Exception:
+                    item["vector"] = None
+            else:
                 item["vector"] = None
-        else:
-            item["vector"] = None
 
-        batch.append(item)
-        if len(batch) >= 100 or i == total:
-            postgrest("evidence", batch)
-            print(f"  Pushed chunks {i - len(batch) + 1} to {i} / {total}")
-            batch = []
+            batch.append(item)
+            if len(batch) >= 100 or i == total:
+                postgrest("evidence", batch)
+                print(f"  Pushed chunks {i - len(batch) + 1} to {i} / {total}")
+                batch = []
 
     # 4. Migrate Results & Result_Docs
     results = [dict(r) for r in db.execute("SELECT * FROM results").fetchall()]
@@ -139,6 +149,8 @@ def run_migration():
                 res["payload"] = json.loads(res["payload"])
             except Exception:
                 pass
+        if "created" in res:
+            res["created_at"] = res.pop("created")
     if results:
         print(f"Migrating {len(results)} search and chat results...")
         postgrest("results", results)
