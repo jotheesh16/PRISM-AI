@@ -222,9 +222,22 @@ class Handler(BaseHTTPRequestHandler):
                         ON r.space=c.space AND r.conversation=c.id AND r.mode!='evaluation'
                         WHERE c.space=? GROUP BY c.id HAVING COUNT(r.id)>0
                         ORDER BY updated DESC,c.rowid DESC""", (space,))
-                    return self.reply([{ "id": r["id"], "created": r["created"],
-                        "updated": r["updated"], "messages": r["messages"],
-                        "title": json.loads(r["first"])["question"][:120]} for r in rows])
+                    out_rows = []
+                    for r in rows:
+                        title = "Conversation"
+                        if r["first"]:
+                            try:
+                                title = str(json.loads(r["first"]).get("question", "Conversation"))[:120]
+                            except Exception:
+                                pass
+                        out_rows.append({
+                            "id": r["id"],
+                            "created": r["created"],
+                            "updated": r["updated"],
+                            "messages": r["messages"],
+                            "title": title,
+                        })
+                    return self.reply(out_rows)
             if path == "/api/documents" and method == "GET":
                 return self.reply(
                     [
@@ -273,11 +286,15 @@ class Handler(BaseHTTPRequestHandler):
                         original = DATA / (doc + '.source')
                         if original.is_file():
                             return self.reply(original.read_bytes(), "application/octet-stream", filename=row['name'])
-                        return self.reply(source.read_bytes(), "application/pdf")
+                        if not source.is_file():
+                            raise Problem(404, "Original document file not found.")
+                        return self.reply(source.read_bytes(), "application/pdf", filename=row['name'])
                     n = int(param("page", "1"))
                     if not 1 <= n <= row["pages"]:
                         raise ValueError("Page out of range.")
                     if action == "page":
+                        if not source.is_file():
+                            raise Problem(404, "Document PDF file not found.")
                         with pdfplumber.open(source) as pdf:
                             return self.reply(
                                 png(page_image(pdf.pages[n - 1], 1300)), "image/png"
@@ -340,7 +357,7 @@ class Handler(BaseHTTPRequestHandler):
                     body.get("question", ""),
                     body.get("documents"),
                     "compare" if path.endswith("compare") else "chat",
-                    conversation=body.get("conversation", "legacy"),
+                    conversation=body.get("conversation") or "legacy",
                 )
             )
         if method == "POST" and path == "/api/evaluation/run":

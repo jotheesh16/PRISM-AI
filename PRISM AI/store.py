@@ -117,7 +117,7 @@ def evidence(row):
         "page": row["page"],
         "kind": row["kind"],
         "text": row["body"],
-        "bbox": json.loads(row["bbox"]),
+        "bbox": json.loads(row["bbox"]) if row["bbox"] else None,
         "width": row["w"],
         "height": row["h"],
     }

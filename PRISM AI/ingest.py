@@ -18,7 +18,7 @@ from store import DATA, ROOT, connect
 POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pdf-index")
 
 # Minimum text characters on a page before skipping expensive vision inference
-_VISION_SKIP_TEXT_THRESHOLD = int(os.getenv("PRISM_VISION_TEXT_THRESHOLD", "200"))
+_VISION_SKIP_TEXT_THRESHOLD = int(os.getenv("PRISM_VISION_TEXT_THRESHOLD", "800"))
 RENDER_LOCK = threading.Lock()
 FILES_LOCK = threading.RLock()
 
@@ -153,22 +153,12 @@ def scan(image, page):
 
 def visuals(page, image, page_text_len=0):
     """Run vision model on page regions. Skip if page has abundant text (not chart-heavy)."""
-    # Pages with lots of text are rarely chart-only - skip to save time
-    # Only process pages likely to have meaningful visual-only evidence
-    MIN_IMAGE_SIZE = 60 * 45  # minimum pixels
-    
-    boxes = [
-        [i["x0"], i["top"], i["x1"], i["bottom"]]
-        for i in page.images
-        if i["width"] > 60 and i["height"] > 45
-    ]
-    
-    # If the page has lots of text AND no large embedded images, skip vision
+    # If the page has lots of text AND no large embedded images, skip vision to save time
     has_large_images = any(
         i["width"] * i["height"] > page.width * page.height * 0.15
         for i in page.images
     )
-    if page_text_len > 800 and not has_large_images and not page.curves:
+    if page_text_len > _VISION_SKIP_TEXT_THRESHOLD and not has_large_images and not page.curves:
         return
     
     # One full-page call preserves surrounding labels and avoids duplicate inference.

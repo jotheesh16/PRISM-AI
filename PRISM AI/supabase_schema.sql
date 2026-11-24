@@ -107,7 +107,8 @@ VALUES ('prism-documents', 'prism-documents', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Grant public read and write access to the bucket
-CREATE POLICY IF NOT EXISTS "Public Access"
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+CREATE POLICY "Public Access"
 ON storage.objects FOR ALL
 USING (bucket_id = 'prism-documents')
 WITH CHECK (bucket_id = 'prism-documents');

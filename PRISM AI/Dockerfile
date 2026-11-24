@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # 3. Install remaining Python application dependencies
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # 4. Pre-download and cache all-MiniLM-L6-v2 embeddings model during build
 # This enables completely offline container operation at runtime
