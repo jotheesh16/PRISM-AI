@@ -15,9 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PRISM_EMBED_MODEL=all-minilm \
     TESSERACT_CMD=tesseract \
     PRISM_OCR_LANG=eng \
-    HF_HOME=/home/prism/.cache/huggingface \
-    HF_HUB_OFFLINE=1 \
-    TRANSFORMERS_OFFLINE=1
+    HF_HOME=/home/prism/.cache/huggingface
 
 WORKDIR /app
 
@@ -41,7 +39,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Pre-download and cache all-MiniLM-L6-v2 embeddings model during build
 # This enables completely offline container operation at runtime
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')" || true
 
 # 5. Create non-root application user and persistent data directory
 RUN useradd -u 1000 -m -s /bin/bash prism && \

@@ -14,10 +14,6 @@ class ServiceError(RuntimeError):
     pass
 
 
-# Ensure offline mode for cached HuggingFace models to avoid network delays
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
-os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-
 _MINILM_MODEL = None
 
 
