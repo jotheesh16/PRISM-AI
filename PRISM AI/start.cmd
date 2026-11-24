@@ -25,6 +25,10 @@ if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" (
   exit /b
 )
 where python >nul 2>nul
+if exist "%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" (
+  "%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" server.py
+  exit /b
+)
 if not errorlevel 1 (
   python server.py
   exit /b

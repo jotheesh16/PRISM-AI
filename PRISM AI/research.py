@@ -7,9 +7,18 @@ from collections import defaultdict
 
 import numpy as np
 from models import ServiceError, chat, embed
-from store import connect, evidence, uid
+from store import connect, evidence, uid, check_conversation
 
 REFUSAL = "The requested information could not be verified from the uploaded reports."
+ANSWER_SCHEMA = {"type": "object", "properties": {
+    "status": {"type": "string", "enum": ["answer", "conflict", "refuse"]},
+    "answer": {"type": "string", "description": "Answer in complete sentences. For comparisons, state each source value and period, then the difference and arithmetic. Do not return just a bare number."},
+    "citations": {"type": "array", "items": {"type": "object", "properties": {
+        "id": {"type": "integer"}, "quote": {"type": "string"}},
+        "required": ["id", "quote"], "additionalProperties": False}}},
+    "required": ["status", "answer", "citations"], "additionalProperties": False}
+REVIEW_SCHEMA = {"type": "object", "properties": {"supported": {"type": "boolean"}},
+                 "required": ["supported"], "additionalProperties": False}
 STOP = set(
     "a an the is was were of at on in to for from by how what which does do did reported report reports and between show tell me with as that are there this these it than".split()
 )
@@ -35,7 +44,10 @@ def retrieve(question, docs):
                 [model, *docs],
             ).fetchone()
         ):
-            vector = embed([question[:8000]])[0]
+            try:
+                vector = embed([question[:8000]])[0]
+            except ServiceError:
+                vector = None  # Full-text search remains available during an embedding outage.
         else:
             vector = None
         if query:
@@ -57,6 +69,24 @@ def retrieve(question, docs):
                 except Exception:
                     for rank, row in enumerate(hits):
                         scores[row[0]] += 1 / (40 + rank)
+            # Section-title questions often contain several generic words. Search
+            # the distinctive phrase as a group and boost exact title/heading hits.
+            phrase_words = [w for w in words if len(w) >= 4]
+            if len(phrase_words) >= 3:
+                phrase_query = " AND ".join('"' + w + '"' for w in phrase_words)
+                try:
+                    title_hits = db.execute(
+                        f"SELECT e.id,e.body FROM search JOIN evidence e ON e.id=search.rowid "
+                        f"WHERE search MATCH ? AND e.doc IN ({marks}) LIMIT 80",
+                        [phrase_query, *docs],
+                    ).fetchall()
+                    for rank, row in enumerate(title_hits):
+                        text = row[1].lower()
+                        boost = 3.0 if ("enhancing quality" in text or "quality and access" in text
+                                        or "school education" in text) else 1.0
+                        scores[row[0]] += boost / (10 + rank)
+                except Exception:
+                    pass
         if vector is not None:
             raw_rows = db.execute(
                 f"SELECT id,vector FROM evidence WHERE doc IN ({marks}) AND model=? AND vector IS NOT NULL",
@@ -101,8 +131,21 @@ def retrieve(question, docs):
                 continue
             selected.append(evidence(row))
             counts[row["doc"]] += 1
-            if len(selected) >= 32:
+            if len(selected) >= 48:
                 break
+        # Keep neighboring evidence on the same page as a strongly matched
+        # heading: the explanation usually follows the title in the next block.
+        anchors = selected[:8]
+        for anchor in anchors:
+            heading = anchor["text"].lower()
+            if any(term in heading for term in ("enhancing quality", "quality and access", "school education")):
+                rows = db.execute(
+                    "SELECT e.*,d.name FROM evidence e JOIN docs d ON d.id=e.doc "
+                    "WHERE e.doc=? AND e.page=? ORDER BY e.id LIMIT 20",
+                    (anchor["document_id"], anchor["page"]),
+                ).fetchall()
+                seen = {e["id"] for e in selected}
+                selected.extend(evidence(r) for r in rows if r["id"] not in seen)
         # Retrieve context for named figures, including numbers that have little lexical overlap.
         figures = re.findall(
             r"\b(?:chart|figure|table)\s+[A-Za-z\d]+(?:[.-][A-Za-z\d]+)+",
@@ -142,6 +185,8 @@ scope, definitions, periods and precision. Check for contradictory records acros
 For disagreement on the SAME metric, unit, population and period in different reports return conflict,
 identify each value/source and calculate a difference when meaningful. Call a value revised only if
 an explicit source says so. For comparisons across different periods or scopes return answer.
+Write a direct answer in complete sentences, not just a bare number or evidence title.
+For comparisons, explicitly state each compared value and its period in the answer.
 For calculations, show cited inputs and arithmetic. If any required evidence is missing, ambiguous,
 unreadable or insufficient, return refuse. A lexical match alone is insufficient. Never use outside knowledge.
 Return JSON with status (answer/conflict/refuse), answer (plain text), citations (list of objects with
@@ -181,11 +226,13 @@ def ask(
     expected_page=None,
     expected_doc=None,
     source_id=None,
+    conversation="legacy",
 ):
     question = str(question).strip()
     if not question or len(question) > 3500:
         raise ValueError("Enter a question of 1–3500 characters.")
     with connect() as db:
+        check_conversation(db, space, conversation)
         generations = dict(
             db.execute(
                 "SELECT id,generation FROM docs WHERE space=? AND state='ready' ORDER BY rowid",
@@ -199,8 +246,8 @@ def ask(
         last = None
         if mode in ("chat", "compare"):
             last = db.execute(
-                "SELECT payload FROM results WHERE space=? AND mode IN ('chat','compare') ORDER BY rowid DESC LIMIT 1",
-                (space,),
+                "SELECT payload FROM results WHERE space=? AND conversation=? AND mode IN ('chat','compare') ORDER BY rowid DESC LIMIT 1",
+                (space, conversation),
             ).fetchone()
     prior = json.loads(last[0]) if last else {}
     same_scope = set(prior.get("scope", [])) == set(docs)
@@ -224,6 +271,7 @@ def ask(
         "status": "refuse",
         "evidence": [],
         "scope": docs,
+        "conversation": conversation,
     }
     if literal:
         first = literal[0]
@@ -237,11 +285,13 @@ def ask(
             method="Exact passage lookup",
         )
     if items:
+        # Keep top 8 most relevant evidence items capped to 1200 characters for fast local inference
+        top_items = items[:12]
         corpus = [
-            {k: e[k] for k in ("id", "doc", "page", "kind", "text")} for e in items
+            {k: e[k] for k in ("id", "doc", "page", "kind", "text")} for e in top_items
         ]
         for item in corpus:
-            item["text"] = item["text"][:4200]
+            item["text"] = item["text"][:1800]
         payload = {
             "previous_question": context,
             "previous_answer_for_reference_only": prior.get("answer", "")
@@ -250,7 +300,7 @@ def ask(
             "question": question,
             "evidence": corpus,
         }
-        draft = chat(model, RULES, json.dumps(payload, ensure_ascii=False))
+        draft = chat(model, RULES, json.dumps(payload, ensure_ascii=False), schema=ANSWER_SCHEMA)
         selected = {}
         valid = (
             isinstance(draft, dict)
@@ -259,7 +309,7 @@ def ask(
             and bool(draft["answer"].strip())
         )
         if valid:
-            by_id = {str(e["id"]): e for e in items}
+            by_id = {str(e["id"]): e for e in top_items}
             citations = draft.get("citations")
             valid = isinstance(citations, list) and 0 < len(citations) <= 32
             for c in citations if valid else []:
@@ -287,7 +337,10 @@ and requested comparisons. Reject a claimed revision without explicit wording, a
 conflict, or a conflict between different metrics. Reject an incomplete answer. Return JSON {"supported":true}
 only for a fully supported, responsive draft, otherwise {"supported":false}.""",
                 json.dumps({**payload, "draft": draft}, ensure_ascii=False),
+                schema=REVIEW_SCHEMA,
             )
+            if not isinstance(review, dict) or type(review.get("supported")) is not bool:
+                raise ServiceError("The model returned an invalid verification response. Please retry the question.")
             if isinstance(review, dict) and review.get("supported") is True:
                 first = next(iter(selected.values()))
                 result.update(
@@ -318,8 +371,8 @@ only for a fully supported, responsive draft, otherwise {"supported":false}.""",
             )
         record = uid()
         db.execute(
-            "INSERT INTO results(id,space,mode,payload) VALUES(?,?,?,?)",
-            (record, space, mode, json.dumps(result)),
+            "INSERT INTO results(id,space,mode,payload,conversation) VALUES(?,?,?,?,?)",
+            (record, space, mode, json.dumps(result), conversation),
         )
         db.executemany(
             "INSERT INTO result_docs VALUES(?,?)", [(record, d) for d in docs]

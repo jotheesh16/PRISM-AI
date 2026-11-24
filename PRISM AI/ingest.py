@@ -171,9 +171,8 @@ def visuals(page, image, page_text_len=0):
     if page_text_len > 800 and not has_large_images and not page.curves:
         return
     
-    if page.curves or len(page.lines) + len(page.rects) > 6 or not boxes:
-        boxes.append(None)
-    for box in boxes[:4]:  # max 4 regions per page instead of 8
+    # One full-page call preserves surrounding labels and avoids duplicate inference.
+    for box in [None]:
         crop = image
         if box:
             sx, sy = image.width / page.width, image.height / page.height
@@ -200,14 +199,14 @@ def visuals(page, image, page_text_len=0):
             content = result.get("evidence")
             if isinstance(content, str) and content.strip():
                 yield "Visual transcription", content.strip(), box
-        except Exception as exc:
-            if "service unavailable" in str(exc).lower() or "connection" in str(exc).lower():
-                raise
-            continue
+        except Exception:
+            raise
 
 
 def process(doc):
     notes = set()
+    if (DATA / (doc + '.source')).is_file():
+        notes.add('Imported document: page numbers refer to the converted PDF. Office imports include text and cached spreadsheet values; export to PDF to preserve charts and layout.')
     try:
         with connect() as db:
             if not db.execute(
@@ -264,11 +263,8 @@ def process(doc):
                             items.extend(visuals(page, image or page_image(page, 1400), page_text_len))
                         except Exception as exc:
                             err_str = str(exc)
-                            if "service unavailable" in err_str.lower() or "connection" in err_str.lower():
-                                notes.add("Visual interpretation unavailable: " + err_str[:120])
-                                use_vision = False
-                            else:
-                                notes.add(f"Page {n} visual transcription skipped: " + err_str[:100])
+                            notes.add(f"Visual interpretation stopped at page {n}: " + err_str[:120])
+                            use_vision = False
                 except Exception as exc:
                     notes.add(f"Page {n} extraction incomplete ({type(exc).__name__}).")
                 vectors = {}

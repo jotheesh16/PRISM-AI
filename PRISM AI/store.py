@@ -5,6 +5,7 @@ import os
 import shutil
 import sqlite3
 import uuid
+from importlib.util import find_spec
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -15,7 +16,10 @@ if (ROOT / ".env").is_file():
             key, value = line.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
-DATA = Path(os.getenv("PRISM_DATA", ROOT / "data")).resolve()
+DATA = Path(os.getenv("PRISM_DATA", ROOT / "data"))
+if not DATA.is_absolute():
+    DATA = ROOT / DATA
+DATA = DATA.resolve()
 DATA.mkdir(parents=True, exist_ok=True)
 DB = DATA / "prism.sqlite3"
 MAX_BYTES = 64 * 1024 * 1024
@@ -65,31 +69,26 @@ def init():
         """)
         if "generation" not in {r[1] for r in db.execute("PRAGMA table_info(docs)")}:
             db.execute("ALTER TABLE docs ADD COLUMN generation INTEGER DEFAULT 0")
+        if "conversation" not in {r[1] for r in db.execute("PRAGMA table_info(results)")}:
+            db.execute("ALTER TABLE results ADD COLUMN conversation TEXT NOT NULL DEFAULT 'legacy'")
+        db.execute("""CREATE TABLE IF NOT EXISTS conversations(
+            id TEXT, space TEXT REFERENCES spaces, created TEXT DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY(space,id))""")
+        db.execute("CREATE INDEX IF NOT EXISTS result_conversation ON results(space,conversation)")
 
 
-_HAS_MINILM = False
-try:
-    import sentence_transformers  # noqa: F401
+def check_conversation(db, space, ident):
+    if not isinstance(ident, str) or not ident:
+        raise ValueError("Invalid conversation.")
+    if ident == "legacy":
+        db.execute("INSERT OR IGNORE INTO conversations(id,space) VALUES('legacy',?)", (space,))
+    elif not db.execute("SELECT 1 FROM conversations WHERE space=? AND id=?", (space, ident)).fetchone():
+        raise ValueError("Conversation not found in this workspace.")
 
-    _HAS_MINILM = True
-except ImportError:
-    pass
 
-_HAS_FAISS = False
-try:
-    import faiss  # noqa: F401
-
-    _HAS_FAISS = True
-except ImportError:
-    pass
-
-_HAS_BM25 = False
-try:
-    import rank_bm25  # noqa: F401
-
-    _HAS_BM25 = True
-except ImportError:
-    pass
+_HAS_MINILM = find_spec("sentence_transformers") is not None
+_HAS_FAISS = find_spec("faiss") is not None
+_HAS_BM25 = find_spec("rank_bm25") is not None
 
 
 def config():
@@ -101,7 +100,7 @@ def config():
         "chat_model": os.getenv("PRISM_CHAT_MODEL", "Qwen3-4B-Instruct"),
         "vision": bool(os.getenv("PRISM_VISION_MODEL")),
         "vision_model": os.getenv("PRISM_VISION_MODEL", "Qwen2.5-VL-3B-Instruct"),
-        "embeddings": bool(os.getenv("PRISM_EMBED_MODEL")) or _HAS_MINILM,
+        "embeddings": bool(os.getenv("PRISM_EMBED_MODEL")),
         "minilm": _HAS_MINILM,
         "faiss": _HAS_FAISS,
         "bm25": _HAS_BM25,

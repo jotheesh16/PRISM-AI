@@ -9,11 +9,13 @@ import {
   citation,
   setSpace,
   getSpace,
+  responseData,
 } from "./common.js";
 const $ = (s) => document.querySelector(s);
 let view = "home",
   docs = [],
   history = [],
+  conversations = [],
   evaluations = [],
   cfg = {},
   excluded = new Set(),
@@ -22,10 +24,23 @@ let view = "home",
   evalDraft = "",
   busy = false,
   latest = null;
+let operationError = "";
+let conversation = localStorage.getItem("prism-conversation:" + getSpace()) || "legacy";
+let refreshVersion = 0;
+function selectConversation(id) {
+  conversation = id;
+  localStorage.setItem("prism-conversation:" + getSpace(), id);
+  history = [];
+  hits = null;
+  draft = "";
+  latest = null;
+  operationError = "";
+}
 const names = {
   home: "Overview",
   library: "Document library",
   research: "Research chat",
+  history: "Conversation history",
   explorer: "Evidence explorer",
   compare: "Comparisons",
   evaluation: "Evaluation",
@@ -35,6 +50,7 @@ const icons = {
   home: "M3 10l9-7 9 7v10H3z",
   library: "M3 4h4v16H3z M10 4h4v16h-4z M16 5l3-1 3 15-3 1z",
   research: "M3 4h18v13H9l-5 4v-4H3z",
+  history: "M3 12a9 9 0 1 0 3-7 M3 3v6h6 M12 7v5l3 2",
   explorer: "M3 3h12l4 4v5 M3 3v18h8 M17 13a4 4 0 1 0 .01 0 M20 20l3 3",
   compare: "M3 6h15l-3-3 M21 18H6l3 3 M18 6l-3 3 M6 18l3-3",
   evaluation: "M5 4h14v17H5z M8 9l2 2 5-5 M8 16h8",
@@ -46,7 +62,7 @@ const heading = (t, s, a = "") =>
 const ready = () => docs.filter((d) => d.state === "ready");
 const pending = (d) => ["queued", "processing"].includes(d.state);
 const drop = () =>
-  `<div class="drop" id="drop"><h3>Drop your reports here</h3><p>Original PDFs · Multiple files · Up to 64 MiB each</p>${btn("upload", "Choose PDFs", "primary")}</div>`;
+  `<div class="drop" id="drop"><h3>Drop your reports here</h3><p>PDF, Office, text, spreadsheets and images · Up to 64 MiB each</p>${btn("upload", "Choose files", "primary")}</div>`;
 function rows(items, manage = false) {
   return items
     .map(
@@ -60,7 +76,8 @@ function answer(r) {
 }
 function research() {
   return (
-    heading("Research chat", "Ask a question across the selected reports.") +
+    heading("Research chat", "Ask a question across the selected reports. Clear conversation starts fresh and keeps past messages in History.",
+      `<div class="actions"><button data-act="clear-chat" ${busy ? "disabled" : ""}>Clear conversation</button><button data-view="history">History</button></div>`) +
     `<div class="research"><section class="panel"><h3>Source reports</h3>${docs.map((d) => `<label class="scope"><input type="checkbox" data-select="${d.id}" ${excluded.has(d.id) ? "" : "checked"} ${d.state !== "ready" ? "disabled" : ""}><span>${esc(d.name)}<br><small>${d.done}/${d.pages} pages · ${d.state}</small></span></label>`).join("") || '<p class="empty">Upload a PDF to select a source.</p>'}${btn("upload", "Add reports")}</section><section class="panel"><h3>Conversation</h3>${history.map(answer).join("") || '<p class="empty">Answers and their citations will appear here.</p>'}<form id="ask" class="composer"><label for="question">Research question</label><textarea id="question" required maxlength="3500" placeholder="Ask about your reports…">${esc(draft)}</textarea><div class="actions"><button class="primary" ${busy ? "disabled" : ""}>${busy ? "Working…" : "Ask question"}</button><button type="button" data-act="search" ${busy ? "disabled" : ""}>Search evidence</button></div></form>${!cfg.chat ? '<p class="note">Set PRISM_CHAT_MODEL in the server configuration for answer generation. For a verbatim answer without a model, enter: Quote the passage containing &quot;your phrase&quot;.</p>' : ""}</section><section class="panel evidence"><h3>${hits ? "Search results" : "Supporting evidence"}</h3>${(hits ?? history.at(-1)?.evidence ?? []).map(citation).join("") || '<p class="empty">No evidence selected.</p>'}</section></div>`
   );
 }
@@ -86,6 +103,9 @@ function render() {
       ) +
       `<div class="panel">${docs.length ? rows(docs, view === "library") : drop()}</div>`;
   if (view === "research") html = research();
+  if (view === "history")
+    html = heading("Conversation history", "Open a saved conversation to review its answers and continue asking questions.") +
+      `<section class="panel">${conversations.map((c) => `<div class="row"><div><h3>${esc(c.title)}</h3><small>${c.messages} messages · ${esc(c.updated)} UTC${c.id === conversation ? " · Current conversation" : ""}</small></div><button data-act="conversation:${esc(c.id)}" ${busy ? "disabled" : ""}>Open conversation</button></div>`).join("") || '<p class="empty">No saved conversations yet.</p>'}</section>`;
   if (view === "compare")
     html =
       heading(
@@ -118,9 +138,9 @@ function render() {
         "AI model and processing services status for this workspace.",
       ) +
       `<section class="section"><h2>AI Stack Health & Integration Status</h2><div class="runtime">${[
-        { name: "Qwen3 4B Instruct", role: "Primary LLM (Answer & Reasoning)", ok: cfg.chat, sub: cfg.chat ? "Online · Provider connected" : "Offline · Set PRISM_CHAT_MODEL in .env" },
-        { name: "Qwen2.5-VL 3B", role: "Vision Model (Charts & Maps)", ok: cfg.vision, sub: cfg.vision ? "Online · Vision endpoint active" : "Offline · Set PRISM_VISION_MODEL in .env" },
-        { name: "all-MiniLM-L6-v2", role: "Embedding Model (Semantic Vectors)", ok: cfg.minilm, sub: cfg.minilm ? "Loaded · 384-dimensional dense vectors" : "Not loaded" },
+        { name: cfg.chat_model || "Chat model", role: "Primary LLM (Answer & Reasoning)", ok: cfg.chat, sub: cfg.chat ? "Configured · Availability checked when answering" : "Set PRISM_CHAT_MODEL in .env" },
+        { name: cfg.vision_model || "Vision model", role: "Vision Model (Charts & Maps)", ok: cfg.vision, sub: cfg.vision ? "Configured · Availability checked during indexing" : "Set PRISM_VISION_MODEL in .env" },
+        { name: "all-MiniLM-L6-v2", role: "Embedding Model (Semantic Vectors)", ok: cfg.minilm, sub: cfg.minilm ? "Library installed · Model availability checked when used" : "Library unavailable" },
         { name: "FAISS CPU", role: "Vector Index (Similarity Search)", ok: cfg.faiss, sub: cfg.faiss ? "Available · IndexFlatIP accelerated" : "Unavailable" },
         { name: "BM25 Ranking", role: "Keyword Retrieval (Exact Matching)", ok: cfg.bm25, sub: cfg.bm25 ? "Available · SQLite FTS5 + rank-bm25" : "Unavailable" },
         { name: "Tesseract 5 / Windows OCR", role: "Document OCR Engine", ok: cfg.tesseract || cfg.ocr, sub: (cfg.tesseract || cfg.ocr) ? "Available · Scanned pages supported" : "Unavailable" },
@@ -132,18 +152,20 @@ function render() {
         .join(
           "",
         )}</div></section><section class="section panel"><h2>Server settings</h2><p>Edit .env and restart the server to connect local or remote models. Provider and language settings are described in README.md.</p></section><section class="section">${btn("export", "Export workspace results")}</section>`;
-  $("#main").innerHTML = html;
+  $("#main").innerHTML = (operationError ? `<section class="panel" role="alert"><h3>Request could not be completed</h3><p>${esc(operationError)}</p><p>Your question is kept below so you can retry.</p></section>` : "") + html;
 }
 async function refresh() {
   const s = getSpace();
+  const current = conversation, version = ++refreshVersion;
   const result = await Promise.all([
     api("/api/documents"),
-    api("/api/history"),
+    api("/api/history", "GET", null, { conversation: current }),
     api("/api/evaluation/results"),
     api("/api/config"),
+    api("/api/conversations"),
   ]);
-  if (s !== getSpace()) return;
-  [docs, history, evaluations, cfg] = result;
+  if (s !== getSpace() || current !== conversation || version !== refreshVersion) return;
+  [docs, history, evaluations, cfg, conversations] = result;
   render();
 }
 async function spaces() {
@@ -162,6 +184,8 @@ function fromHash() {
 window.addEventListener("hashchange", fromHash);
 async function switchSpace(id) {
   setSpace(id);
+  selectConversation(localStorage.getItem("prism-conversation:" + id) || "legacy");
+  conversations = [];
   excluded.clear();
   hits = null;
   draft = "";
@@ -188,30 +212,49 @@ $("#spaceform").onsubmit = async (e) => {
   }
 };
 async function upload(files) {
+  if (!files.length) return;
   const target = getSpace(),
     errors = [];
+  let received = 0;
   try {
     for (const f of files) {
+      if (!f.size) {
+        errors.push(f.name + " — choose a non-empty file");
+        continue;
+      }
       if (f.size > 64 * 1024 * 1024) {
         errors.push(f.name + " exceeds 64 MiB");
         continue;
       }
       tell("Uploading " + f.name);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 120000);
+      try {
       const r = await fetch(
         url("/api/documents/upload", { name: f.name, space: target }),
         {
           method: "POST",
           body: f,
-          headers: { "Content-Type": "application/pdf" },
+          headers: { "Content-Type": "application/octet-stream" },
+          signal: controller.signal,
         },
       );
-      const obj = await r.json();
-      if (!r.ok) errors.push(f.name + " — " + obj.error);
-      if (target === getSpace()) await refresh();
+      const obj = await responseData(r);
+      received++;
+      if (obj.state === "failed") errors.push(f.name + " — already uploaded but indexing failed. Open Document library and choose Reprocess. " + (obj.notes || ""));
+      } catch (err) {
+        errors.push(f.name + " — " + (err.name === "AbortError" ? "Upload timed out. Check Document library before retrying." : err instanceof TypeError ? "Cannot reach the backend. Start PRISM AI and open http://127.0.0.1:8765/." : err.message));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    if (received && target === getSpace()) {
+      location.hash = "library";
+      try { await refresh(); } catch (err) { errors.push("Files received, but refreshing the library failed: " + err.message); }
     }
     tell(
       errors.length
-        ? errors.join(" · ")
+        ? `${received} file(s) received. ` + errors.join(" · ")
         : "Reports received. Indexing progress is available in the library.",
     );
   } catch (err) {
@@ -253,14 +296,28 @@ async function query(mode) {
     tell("Enter a question.");
     return;
   }
+  if (!ready().some((d) => mode === "compare" || !excluded.has(d.id))) {
+    tell("Select at least one ready report. Reports still indexing will become available when processing finishes.");
+    return;
+  }
+  const selectedDocs = ready().filter((d) => mode === "compare" || !excluded.has(d.id));
+  if (/enhancing\s+quality\s+and\s+access|progress\s+in\s+school\s+education/i.test(question)) {
+    const educationDoc = selectedDocs.find((d) => /education|school/i.test(d.name));
+    if (!educationDoc) {
+      operationError = "This question refers to the education section. Select the report whose name contains education or school, then ask again.";
+      render();
+      return;
+    }
+  }
   busy = true;
+  operationError = "";
   render();
   const target = getSpace();
   try {
     const body = {
       question,
-      documents: ready()
-        .filter((d) => mode === "compare" || !excluded.has(d.id))
+      conversation,
+      documents: selectedDocs
         .map((d) => d.id),
     };
     if (mode === "search") {
@@ -280,14 +337,20 @@ async function query(mode) {
         hits = null;
         draft = "";
         await refresh();
+        const answers = document.querySelectorAll('.message');
+        answers[answers.length - 1]?.scrollIntoView({block: 'center'});
       }
     }
+  } catch (err) {
+    operationError = err.message;
+    throw err;
   } finally {
     busy = false;
     render();
   }
 }
 async function evaluate() {
+  if (busy) return;
   let entries;
   const raw = evalDraft.trim();
   if (/^[\[{]/.test(raw)) {
@@ -309,6 +372,7 @@ async function evaluate() {
   if (!Array.isArray(entries) || !entries.length || entries.length > 100)
     throw Error("Supply 1–100 questions.");
   busy = true;
+  operationError = "";
   render();
   const target = getSpace();
   try {
@@ -323,6 +387,9 @@ async function evaluate() {
       if (getSpace() === target) await refresh();
     }
     tell("Evaluation finished.");
+  } catch (err) {
+    operationError = err.message;
+    throw err;
   } finally {
     busy = false;
     render();
@@ -375,6 +442,25 @@ document.addEventListener("click", async (e) => {
       return;
     }
     const [act, id] = t.dataset.act.split(":");
+    if (act === "clear-chat" || act === "conversation") {
+      if (busy) return;
+      const target = getSpace();
+      busy = true;
+      render();
+      try {
+        const selected = act === "clear-chat"
+          ? (await api("/api/conversations", "POST", {})).id : id;
+        if (target !== getSpace()) return;
+        selectConversation(selected);
+        await refresh();
+        location.hash = "research";
+        if (act === "clear-chat") tell("Conversation cleared. Past messages are saved in History.");
+      } finally {
+        busy = false;
+        render();
+      }
+      return;
+    }
     if (await viewAction(act)) return;
     if (act === "upload") $("#files").click();
     if (act === "library") location.hash = "library";

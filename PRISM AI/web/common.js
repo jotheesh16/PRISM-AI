@@ -18,11 +18,21 @@ export function setApiBase(base) {
 }
 export const url = (path, params = {}) =>
   (apiBase || "") + path + "?" + new URLSearchParams({ space, ...params });
+export async function responseData(res) {
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch {
+    if (res.status === 413) throw Error("The server or hosting gateway rejected this file as too large. Try a smaller PDF or use the local app.");
+    throw Error(`Server returned HTTP ${res.status} instead of an API response. Check that the PRISM backend is running and the app address is correct.`);
+  }
+  if (!res.ok) throw Error(data.error || `Request failed (HTTP ${res.status})`);
+  return data;
+}
 export async function api(path, method = "GET", body, params) {
   const controller = new AbortController();
   // Allow up to 180 seconds for LLM inference (chat/ask/compare/evaluation)
   const isLongRunning = path.includes("/api/chat") || path.includes("/api/evaluation");
-  const timeoutMs = isLongRunning ? 180000 : 30000;
+  const timeoutMs = isLongRunning ? 300000 : 30000;
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url(path, params), {
@@ -31,9 +41,7 @@ export async function api(path, method = "GET", body, params) {
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });
-    const data = await res.json();
-    if (!res.ok) throw Error(data.error || "Request failed");
-    return data;
+    return await responseData(res);
   } catch (err) {
     if (err.name === "AbortError") throw Error("Request timed out. The AI model is still loading or busy — please retry.");
     throw err;

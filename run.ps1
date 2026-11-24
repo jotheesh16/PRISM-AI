@@ -1,5 +1,5 @@
 # PRISM AI Single-Command Unified Launcher
-$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
 
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "   PRISM AI: MULTIMODAL RAG UNIFIED LAUNCHER      " -ForegroundColor Cyan
@@ -15,7 +15,12 @@ try {
     if (Test-Path $ollamaExe) {
         Start-Process $ollamaExe -ArgumentList "serve" -WindowStyle Hidden
     } else {
-        Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
+        $ollamaCommand = Get-Command ollama.exe -ErrorAction SilentlyContinue
+        if ($ollamaCommand) {
+            Start-Process $ollamaCommand.Source -ArgumentList "serve" -WindowStyle Hidden
+        } else {
+            Write-Warning "Ollama is not installed. Install Ollama and the models configured in PRISM AI/.env to enable Ask question."
+        }
     }
     
     # Wait for Ollama
@@ -35,7 +40,7 @@ try {
 }
 
 # 2. Check and start PRISM AI backend
-$demoUrl = "http://127.0.0.1:8765/?space=8c0a4dd55f7c43c6858305d66675e395#research"
+$demoUrl = "http://127.0.0.1:8765/#research"
 try {
     $serverCheck = Invoke-RestMethod "http://127.0.0.1:8765/api/config" -TimeoutSec 2
     Write-Host "[2/3] PRISM AI backend: ALREADY ACTIVE (port 8765)" -ForegroundColor Green
@@ -49,13 +54,16 @@ try {
         $pythonExe = "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe"
     }
     if (-not (Test-Path $pythonExe)) {
-        $pythonExe = (Get-Command python -ErrorAction SilentlyContinue).Source
+        $pythonExe = Join-Path $env:USERPROFILE ".cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"
+    }
+    if (-not (Test-Path $pythonExe)) {
+        throw "Python is unavailable. Install Python and the packages in PRISM AI/requirements.txt."
     }
     
     $serverPy = Join-Path $prismDir "server.py"
     $dataDir = Join-Path $prismDir "data"
     
-    Start-Process $pythonExe -ArgumentList "`"$serverPy`"" -WorkingDirectory $prismDir -Environment @{ "PRISM_DATA" = $dataDir }
+    Start-Process $pythonExe -ArgumentList "`"$serverPy`"" -WorkingDirectory $prismDir -WindowStyle Hidden -Environment @{ "PRISM_DATA" = $dataDir }
     
     # Wait for backend
     $serverReady = $false

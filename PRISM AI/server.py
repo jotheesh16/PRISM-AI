@@ -8,18 +8,30 @@ import socket
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlsplit, quote
 
 import pdfplumber
-from ingest import FILES_LOCK, POOL, page_image, png, process
+import pypdfium2
+from file_import import to_pdf
+from ingest import FILES_LOCK, RENDER_LOCK, POOL, page_image, png, process
 from models import ServiceError
 from research import ask, retrieve
-from store import DATA, MAX_BYTES, ROOT, config, connect, evidence, init, uid
+from store import DATA, MAX_BYTES, ROOT, config, connect, evidence, init, uid, check_conversation
 
 
 class Problem(Exception):
     def __init__(self, code, message):
         self.code, self.message = code, message
+
+
+class PrismServer(ThreadingHTTPServer):
+    # Windows SO_REUSEADDR can route requests to two different backend versions.
+    allow_reuse_address = False
+
+    def server_bind(self):
+        if hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -42,13 +54,15 @@ class Handler(BaseHTTPRequestHandler):
         # Disable blocking logging
         pass
 
-    def reply(self, body, kind="application/json", status=200):
+    def reply(self, body, kind="application/json", status=200, filename=None):
         if kind == "application/json":
             body = json.dumps(body, ensure_ascii=False).encode()
         try:
             self.send_response(status)
             self.send_header("Content-Type", kind)
             self.send_header("Content-Length", str(len(body)))
+            if filename:
+                self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + quote(filename, safe=''))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Referrer-Policy", "no-referrer")
@@ -83,11 +97,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def upload(self, space, name):
         name = Path(name.replace("\\", "/")).name[:230]
-        if not name.lower().endswith(".pdf"):
-            raise Problem(415, "Choose an original PDF file.")
         data = self.read_body(MAX_BYTES)
-        if not data.startswith(b"%PDF-"):
-            raise Problem(415, "File header is not PDF.")
         digest = hashlib.sha256(data).hexdigest()
         with FILES_LOCK, connect() as db:
             old = db.execute(
@@ -97,21 +107,32 @@ class Handler(BaseHTTPRequestHandler):
                 return dict(old)
             doc = uid()
             path = DATA / (doc + ".pdf")
-            path.write_bytes(data)
             try:
-                with pdfplumber.open(path) as pdf:
-                    pages = len(pdf.pages)
+                normalized = to_pdf(name, data)
+            except ValueError as exc:
+                raise Problem(415, str(exc)) from exc
+            except Exception as exc:
+                raise Problem(422, "Unable to read this document. Check its format, integrity and encryption.") from exc
+            path.write_bytes(normalized)
+            try:
+                # Read the page tree without constructing every pdfplumber page.
+                with RENDER_LOCK, pypdfium2.PdfDocument(path) as pdf:
+                    pages = len(pdf)
                     if not 0 < pages <= 5000:
                         raise ValueError()
                 db.execute(
                     "INSERT INTO docs(id,space,name,size,hash,pages,state) VALUES(?,?,?,?,?,?,'queued')",
                     (doc, space, name, len(data), digest, pages),
                 )
+                if not name.lower().endswith('.pdf'):
+                    (DATA / (doc + '.source')).write_bytes(data)
+                    db.execute("UPDATE docs SET notes=? WHERE id=?", ('Imported as PDF for indexing; page numbers refer to the converted document. Office imports include text and cached spreadsheet values; export to PDF to preserve charts and layout.', doc))
             except Exception:
                 path.unlink(missing_ok=True)
+                (DATA / (doc + '.source')).unlink(missing_ok=True)
                 raise Problem(
                     422,
-                    "Unable to read this PDF. Check encryption, file integrity and the 5,000-page limit.",
+                    "Unable to read this document. Check encryption, file integrity and the 5,000-page limit.",
                 )
         POOL.submit(process, doc)
         return {"id": doc, "name": name, "pages": pages, "state": "queued"}
@@ -177,6 +198,25 @@ class Handler(BaseHTTPRequestHandler):
                             for r in db.execute("SELECT * FROM spaces ORDER BY rowid")
                         ]
                     )
+            if path == "/api/conversations":
+                if method == "POST":
+                    ident = uid()
+                    db.execute("INSERT INTO conversations(id,space) VALUES(?,?)", (ident, space))
+                    db.commit()
+                    return self.reply({"id": ident})
+                if method == "GET":
+                    check_conversation(db, space, "legacy")
+                    rows = db.execute("""SELECT c.id,c.created,COUNT(r.id) AS messages,
+                        MAX(r.created) AS updated,
+                        (SELECT payload FROM results WHERE space=c.space AND conversation=c.id
+                         AND mode!='evaluation' ORDER BY rowid LIMIT 1) AS first
+                        FROM conversations c LEFT JOIN results r
+                        ON r.space=c.space AND r.conversation=c.id AND r.mode!='evaluation'
+                        WHERE c.space=? GROUP BY c.id HAVING COUNT(r.id)>0
+                        ORDER BY updated DESC,c.rowid DESC""", (space,))
+                    return self.reply([{ "id": r["id"], "created": r["created"],
+                        "updated": r["updated"], "messages": r["messages"],
+                        "title": json.loads(r["first"])["question"][:120]} for r in rows])
             if path == "/api/documents" and method == "GET":
                 return self.reply(
                     [
@@ -207,6 +247,7 @@ class Handler(BaseHTTPRequestHandler):
                         )
                     with FILES_LOCK:
                         source.unlink(missing_ok=True)
+                        (DATA / (doc + '.source')).unlink(missing_ok=True)
                         db.execute("DELETE FROM docs WHERE id=?", (doc,))
                     return self.reply({"deleted": doc})
                 if method == "POST" and action == "process":
@@ -221,6 +262,9 @@ class Handler(BaseHTTPRequestHandler):
                     if not action:
                         return self.reply(dict(row))
                     if action == "original":
+                        original = DATA / (doc + '.source')
+                        if original.is_file():
+                            return self.reply(original.read_bytes(), "application/octet-stream", filename=row['name'])
                         return self.reply(source.read_bytes(), "application/pdf")
                     n = int(param("page", "1"))
                     if not 1 <= n <= row["pages"]:
@@ -253,6 +297,12 @@ class Handler(BaseHTTPRequestHandler):
                     "history": " AND mode!='evaluation'",
                     "results": " AND mode='evaluation'",
                 }.get(path.rsplit("/", 1)[1], "")
+                values = [space]
+                if path == "/api/history" and "conversation" in params:
+                    ident = param("conversation")
+                    check_conversation(db, space, ident)
+                    clause += " AND conversation=?"
+                    values.append(ident)
                 return self.reply(
                     [
                         json.loads(r[0])
@@ -260,7 +310,7 @@ class Handler(BaseHTTPRequestHandler):
                             "SELECT payload FROM results WHERE space=?"
                             + clause
                             + " ORDER BY rowid",
-                            (space,),
+                            values,
                         )
                     ]
                 )
@@ -282,6 +332,7 @@ class Handler(BaseHTTPRequestHandler):
                     body.get("question", ""),
                     body.get("documents"),
                     "compare" if path.endswith("compare") else "chat",
+                    conversation=body.get("conversation", "legacy"),
                 )
             )
         if method == "POST" and path == "/api/evaluation/run":
@@ -337,7 +388,7 @@ if __name__ == "__main__":
             POOL.submit(process, row[0])
     host = os.getenv("PRISM_HOST", "0.0.0.0" if (os.getenv("PORT") or os.getenv("DOCKER")) else "127.0.0.1")
     port = int(os.getenv("PORT", os.getenv("PRISM_PORT", "8765")))
-    server = ThreadingHTTPServer((host, port), Handler)
+    server = PrismServer((host, port), Handler)
     print(f"PRISM AI is ready at http://{host}:{port}", flush=True)
     try:
         server.serve_forever()

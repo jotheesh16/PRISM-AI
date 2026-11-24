@@ -3,6 +3,7 @@
 import json
 import os
 import re
+from urllib.parse import urlsplit
 import urllib.error
 import urllib.request
 
@@ -79,17 +80,34 @@ def parse_json_response(raw_text):
         extracted = ev_match.group(1)
         extracted = extracted.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
         return {"evidence": extracted}
-    # Attempt 4: Fallback regex for unquoted or truncated values
+    # Attempt 4: Regex extraction for research chat {"status": "...", "answer": "..."}
+    ans_match = re.search(r'"answer"\s*:\s*"((?:[^"\\]|\\.)*)', text)
+    if ans_match:
+        extracted_ans = ans_match.group(1).replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+        status_match = re.search(r'"status"\s*:\s*"([^"]+)"', text)
+        st = status_match.group(1) if status_match else "answer"
+        return {"status": st, "answer": extracted_ans, "citations": []}
+    # Attempt 5: Fallback regex for unquoted or truncated values
     ev_fallback = re.search(r'"evidence"\s*:\s*([\s\S]+)', text)
     if ev_fallback:
         val = ev_fallback.group(1).strip().rstrip('"}').strip('"')
         return {"evidence": val}
+    ans_fallback = re.search(r'"answer"\s*:\s*([\s\S]+)', text)
+    if ans_fallback:
+        val = ans_fallback.group(1).strip().rstrip('"}').strip('"')
+        return {"status": "answer", "answer": val, "citations": []}
     # Final attempt: let standard json.loads raise with clear error
     return json.loads(text)
 
 
-def call(path, body, timeout=None):
-    base = os.getenv("PRISM_API_BASE", "http://localhost:11434/v1").rstrip("/")
+def call(path, body, timeout=None, native=False):
+    base = os.getenv("PRISM_API_BASE", "http://127.0.0.1:11434/v1").rstrip("/")
+    # On Windows, localhost can resolve to IPv6 ::1 where Ollama does not listen, causing WinError 10060
+    base = base.replace("://localhost:", "://127.0.0.1:").replace("://localhost/", "://127.0.0.1/")
+    if base.endswith("://localhost"):
+        base = base[:-9] + "127.0.0.1"
+    if native:
+        base = base.removesuffix("/v1")
     headers = {"Content-Type": "application/json"}
     key = os.getenv("PRISM_API_KEY")
     if key:
@@ -113,23 +131,37 @@ def call(path, body, timeout=None):
         ) from exc
 
 
-def chat(model, system, message):
+def chat(model, system, message, schema=None):
     if not model:
         raise ServiceError("No chat model specified. Set PRISM_CHAT_MODEL in .env.")
+    system_prompt = system.strip()
+    if "json" not in system_prompt.lower():
+        system_prompt += "\nAlways return your response formatted as a valid JSON object."
+    system_prompt += "\nReturn only the complete JSON object, without commentary."
     body = {
         "model": model,
         "messages": [
-            {"role": "system", "content": system},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": message},
         ],
-        "response_format": {"type": "json_object"},
         "temperature": 0.0,
-        "max_tokens": 4096,
+        "max_tokens": 2048,
+        "response_format": {"type": "json_object"},
     }
-    result = call("chat/completions", body, timeout=180)
+    endpoint = urlsplit(os.getenv("PRISM_API_BASE", "http://127.0.0.1:11434/v1"))
+    native = endpoint.port == 11434 and isinstance(message, str)
+    if native:
+        body = {"model": model, "messages": body["messages"], "stream": False,
+                "think": False, "format": schema or "json",
+                "options": {"temperature": 0, "num_predict": 2048}}
+    result = call("api/chat" if native else "chat/completions", body, timeout=120, native=native)
     try:
-        raw_content = result["choices"][0]["message"]["content"]
-        return parse_json_response(raw_content)
+        msg = result["message"] if native else result["choices"][0]["message"]
+        raw_content = msg.get("content") or ""
+        parsed = parse_json_response(raw_content)
+        if not isinstance(parsed, dict):
+            raise ValueError("Expected a JSON object")
+        return parsed
     except (KeyError, TypeError, IndexError) as exc:
         raise ServiceError("Model response did not contain expected choices.") from exc
     except Exception as exc:
@@ -142,13 +174,10 @@ def embed(texts):
     clean_texts = [str(t or "")[:8000] for t in texts]
     model = os.getenv("PRISM_EMBED_MODEL", "all-minilm")
     # Prefer local all-MiniLM-L6-v2 if requested or if no remote API key is set
-    if "minilm" in model.lower() or not os.getenv("PRISM_API_KEY"):
-        try:
-            st = get_minilm()
-            arr = st.encode(clean_texts, normalize_embeddings=True, show_progress_bar=False)
-            return arr.astype(np.float32)
-        except Exception:
-            pass  # Fallback to API if local fails
+    if "minilm" in model.lower():
+        st = get_minilm()
+        arr = st.encode(clean_texts, normalize_embeddings=True, show_progress_bar=False)
+        return arr.astype(np.float32)
     # Remote embeddings via OpenAI-compatible endpoint
     data = sorted(
         call("embeddings", {"model": model, "input": clean_texts})["data"],

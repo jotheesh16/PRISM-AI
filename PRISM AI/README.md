@@ -19,12 +19,42 @@ On this Codex desktop, `start.cmd` can use the bundled Python libraries. `start-
 
 ## Add reports and inspect evidence
 
+Uploads also accept DOCX, XLSX, PPTX, UTF-8/UTF-16 text (including CSV, JSON,
+Markdown and source files), PNG, JPEG, TIFF, BMP, WebP and GIF. Originals are kept
+for download; indexing and page citations use a converted PDF. Office conversion
+extracts text and cached cell values, not charts, embedded images or original
+layout; export Office documents to PDF when those matter. Image imports require
+OCR for searchable text. Older DOC/XLS/PPT, encrypted files, archives, audio,
+video and executable files are not supported. The upload limit is 64 MiB per file.
+
 1. Choose **Upload reports** in Overview. Select one or several original PDFs, up to 64 MiB and 5,000 pages per file. The Library shows indexing progress, OCR page counts and warnings. Content hashes prevent duplicate indexing within a workspace.
 2. Open **Research chat**. Select reports, enter terms, and choose **Search evidence** to inspect retrieved passages. Click a citation to see its PDF page and highlighted extraction region. Click **Original PDF** for the unchanged file.
 3. For a key-free verbatim answer, enter `Quote the passage containing "your source phrase"` using words from a report. The server checks every indexed passage in scope for the phrase and returns a matching passage with its source. Missing phrases produce a refusal. Scanned-page quotations reproduce OCR output, which may contain recognition errors.
 4. Configure a chat model for general questions, comparisons, calculations and follow-ups. **Comparisons** uses every ready report in the workspace. **Evaluation** accepts one question per line, a JSON array, an object containing a questions array, or JSONL. Each item can contain `id`, `question`, `expected`, `expected_doc` and `expected_page`. Expected values are displayed for review and excluded from model prompts.
 
 ## Configure the processing services
+
+### Clear and reopen conversations
+
+In **Research chat**, choose **Clear conversation** to start a fresh conversation.
+This clears the displayed messages, question input, search results and follow-up
+context. Earlier messages remain saved in **History**. Choose **Open conversation**
+to review or continue a saved chat. The current conversation survives a browser
+reload, and history is isolated by workspace. Existing messages appear together
+as the original conversation. Deleting or reprocessing reports still invalidates
+results that depended on their previous evidence. Restart the backend after this
+update to apply the database migration.
+
+Functional regression checks: `python -m unittest test_regressions -v` (requires
+ReportLab for test PDF generation). Browser checks: `python test_browser.py`, with
+`PRISM_NODE` pointing to Node.js and `PRISM_PLAYWRIGHT` to the installed Playwright
+package; these use Chrome and temporary test data.
+
+Passing functional tests does not establish model answer accuracy. The requested
+95–99% accuracy target remains unverified until representative questions and
+correct answers are supplied and evaluated against the configured live model.
+Review answer correctness, citations, refusals and coverage separately; expected
+answers must stay out of model prompts.
 
 Set the following in `.env`, then restart. Model names must be IDs supported by your own provider.
 
