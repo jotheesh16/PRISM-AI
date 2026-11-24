@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: prism-ai-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8765
+      - key: PRISM_PORT
+        value: 8765
+      - key: PRISM_HOST
+        value: 0.0.0.0
+      - key: PRISM_ALLOW_REMOTE
+        value: "1"
+    healthCheckPath: /api/config

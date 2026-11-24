@@ -143,12 +143,20 @@ class Handler(BaseHTTPRequestHandler):
         method = self.command
         params = parse_qs(url.query)
         param = lambda k, default="": params.get(k, [default])[0]
-        host = self.headers.get("Host", "")
-        if host.split(":")[0] not in ("127.0.0.1", "localhost"):
-            raise Problem(403, "Use the local workspace address.")
-        origin = self.headers.get("Origin")
-        if origin and origin != "http://" + host:
-            raise Problem(403, "Cross-origin requests are disabled.")
+        is_cloud = bool(
+            os.getenv("PORT")
+            or os.getenv("DOCKER")
+            or os.getenv("RENDER")
+            or os.getenv("PRISM_HOST") == "0.0.0.0"
+            or os.getenv("PRISM_ALLOW_REMOTE")
+        )
+        if not is_cloud:
+            host = self.headers.get("Host", "")
+            if host.split(":")[0] not in ("127.0.0.1", "localhost"):
+                raise Problem(403, "Use the local workspace address.")
+            origin = self.headers.get("Origin")
+            if origin and origin != "http://" + host:
+                raise Problem(403, "Cross-origin requests are disabled.")
         if method == "GET" and path in (
             "/",
             "/app.js",

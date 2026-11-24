@@ -49,9 +49,10 @@ RUN useradd -u 1000 -m -s /bin/bash prism && \
     cp -r /root/.cache/* /home/prism/.cache/ 2>/dev/null || true && \
     chown -R prism:prism /app /home/prism/.cache
 
-# 6. Copy application source code
+# 6. Copy application source code and pre-indexed dataset
 COPY --chown=prism:prism server.py ingest.py models.py research.py store.py file_import.py ./
 COPY --chown=prism:prism web/ ./web/
+COPY --chown=prism:prism data/ ./data/
 
 # Switch to non-root user
 USER prism
