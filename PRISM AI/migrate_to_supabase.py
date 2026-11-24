@@ -1,26 +1,41 @@
 """Migrate local SQLite database and PDF documents to Supabase."""
 
+import array
 import json
 import os
 import sqlite3
 import urllib.request
 import urllib.error
 from pathlib import Path
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 ROOT = Path(__file__).resolve().parent
 DB_PATH = ROOT / "data" / "prism.sqlite3"
 DATA_DIR = ROOT / "data"
 
-# Load .env if present
-if (ROOT / ".env").is_file():
-    for line in (ROOT / ".env").read_text(encoding="utf-8-sig").splitlines():
-        if "=" in line and not line.lstrip().startswith("#"):
-            k, v = line.split("=", 1)
-            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+# Load .env if present in PRISM AI or repo root
+for env_candidate in (ROOT / ".env", ROOT.parent / ".env"):
+    if env_candidate.is_file():
+        for line in env_candidate.read_text(encoding="utf-8-sig").splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_URL = (
+    os.getenv("SUPABASE_URL")
+    or os.getenv("PRISM_SUPABASE_URL")
+    or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+).rstrip("/")
+
+SUPABASE_KEY = (
+    os.getenv("SUPABASE_KEY")
+    or os.getenv("PRISM_SUPABASE_KEY")
+    or os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+)
 
 
 def postgrest(table, records, method="POST"):
@@ -128,7 +143,10 @@ def run_migration():
             # Convert vector blob to float list
             if r["vector"]:
                 try:
-                    vec = np.frombuffer(r["vector"], dtype=np.float32).tolist()
+                    if np is not None:
+                        vec = np.frombuffer(r["vector"], dtype=np.float32).tolist()
+                    else:
+                        vec = array.array("f", r["vector"]).tolist()
                     item["vector"] = vec
                 except Exception:
                     item["vector"] = None

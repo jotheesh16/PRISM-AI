@@ -434,11 +434,15 @@ document.addEventListener("click", async (e) => {
     }
     if (t.dataset.cite) {
       const item = await api("/api/evidence/" + t.dataset.cite);
-      await openPage(
-        docs.find((d) => d.id === item.document_id),
-        item.page,
-        item,
-      );
+      let targetDoc = docs.find((d) => d.id === item.document_id);
+      if (!targetDoc) {
+        try { targetDoc = await api("/api/documents/" + item.document_id); } catch (_) {}
+      }
+      if (targetDoc) {
+        await openPage(targetDoc, item.page, item);
+      } else {
+        tell("Document not found in current view.");
+      }
       return;
     }
     const [act, id] = t.dataset.act.split(":");
