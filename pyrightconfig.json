@@ -1,0 +1,12 @@
+{
+  "include": [
+    "PRISM AI",
+    "."
+  ],
+  "extraPaths": [
+    "PRISM AI"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.12"
+}

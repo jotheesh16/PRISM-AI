@@ -3,7 +3,14 @@
 import json
 import os
 import re
+import sys
 from collections import defaultdict
+from pathlib import Path
+
+# Ensure local modules resolve cleanly across all execution contexts
+_BASE_DIR = Path(__file__).resolve().parent
+if str(_BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(_BASE_DIR))
 
 import numpy as np
 from models import ServiceError, chat, embed

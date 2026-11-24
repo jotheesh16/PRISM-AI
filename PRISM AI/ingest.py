@@ -7,9 +7,16 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+# Ensure local modules resolve cleanly across all execution contexts
+_BASE_DIR = Path(__file__).resolve().parent
+if str(_BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(_BASE_DIR))
 
 import pdfplumber
 from models import chat, embed

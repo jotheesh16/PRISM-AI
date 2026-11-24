@@ -5,10 +5,16 @@ import json
 import os
 import re
 import socket
+import sys
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit, quote
+
+# Ensure local modules resolve cleanly across all execution contexts
+_BASE_DIR = Path(__file__).resolve().parent
+if str(_BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(_BASE_DIR))
 
 import pdfplumber
 import pypdfium2
