@@ -86,13 +86,20 @@ CREATE TABLE IF NOT EXISTS public.result_docs (
     PRIMARY KEY(result, doc)
 );
 
--- 6. Disable Row Level Security (RLS) for backend access (or grant full access to authenticated/anon)
+-- 6. Disable Row Level Security (RLS) & Grant Access to PostgREST roles
 ALTER TABLE public.spaces DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.docs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.evidence DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.results DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.result_docs DISABLE ROW LEVEL SECURITY;
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
 -- 7. Create Public Storage Bucket for PDFs
 INSERT INTO storage.buckets (id, name, public)
