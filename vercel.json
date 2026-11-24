@@ -12,9 +12,7 @@
       ]
     }
   ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "^/api/(.*)", "dest": "/PRISM AI/api/[...path].js" },
-    { "src": "^/(.*)", "dest": "/PRISM AI/web/$1" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/[...path]" }
   ]
 }
