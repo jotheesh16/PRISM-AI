@@ -21,3 +21,6 @@ desktop.ini
 # SQLite temporary journal files
 *.sqlite3-wal
 *.sqlite3-shm
+
+# Downloaded dataset PDFs
+hackathon_dataset_pdfs/
