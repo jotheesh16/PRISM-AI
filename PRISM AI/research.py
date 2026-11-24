@@ -255,10 +255,6 @@ def ask(
     search = question + (" " + context if context else "")
     model = os.getenv("PRISM_CHAT_MODEL")
     literal = literal_passage(question, docs)
-    if docs and not model and literal is None:
-        raise ServiceError(
-            "Configure PRISM_CHAT_MODEL and provider credentials in .env for verified answers. Evidence search is available without a chat model."
-        )
     items = retrieve(search, docs) if literal is None else []
     result = {
         "id": uid(),
@@ -284,7 +280,18 @@ def ask(
             evidence=literal,
             method="Exact passage lookup",
         )
-    if items:
+    elif items and not model:
+        first = items[0]
+        result.update(
+            status="answer",
+            answer=first["text"],
+            doc=first["doc"],
+            page=first["page"],
+            bbox=first["bbox"],
+            evidence=items[:3],
+            method="Extractive evidence retrieval",
+        )
+    if items and model:
         # Keep top 8 most relevant evidence items capped to 1200 characters for fast local inference
         top_items = items[:12]
         corpus = [
