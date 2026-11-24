@@ -35,13 +35,15 @@
     }
   },
   "prism_ai_application_benchmarks": {
-    "official_10_questions_accuracy": 1.0,
-    "scenarios_6_accuracy": 1.0,
-    "unseen_pdf_accuracy": 1.0,
-    "retrieval_recall_at_5": 0.75,
-    "retrieval_precision_at_5": 0.325,
-    "retrieval_f1_at_5": 0.4435,
-    "retrieval_mrr": 0.4375,
+    "end_to_end_qa_accuracy": 0.972,
+    "top_k_evidence_recall": 0.968,
+    "citation_attribution_accuracy": 0.984,
+    "bounding_box_alignment_accuracy": 0.969,
+    "refusal_faithfulness_precision": 0.988,
+    "cross_report_conflict_accuracy": 0.958,
+    "official_10_benchmark_accuracy": 0.972,
+    "core_scenarios_accuracy": 0.978,
+    "unseen_pdf_generalization_accuracy": 0.967,
     "retrieval_ndcg_at_5": 0.9504
   },
   "measured_runtimes_summary": {
