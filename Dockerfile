@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
 # 3. Install Python dependencies
-COPY "PRISM AI/requirements.txt" /app/requirements.txt
+COPY ["PRISM AI/requirements.txt", "/app/requirements.txt"]
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Pre-download all-MiniLM-L6-v2 embeddings model for offline container execution
@@ -48,9 +48,9 @@ RUN useradd -u 1000 -m -s /bin/bash prism && \
     chown -R prism:prism /app /home/prism/.cache
 
 # 6. Copy application source code and pre-indexed dataset
-COPY --chown=prism:prism "PRISM AI/server.py" "PRISM AI/ingest.py" "PRISM AI/models.py" "PRISM AI/research.py" "PRISM AI/store.py" "PRISM AI/file_import.py" ./
-COPY --chown=prism:prism "PRISM AI/web/" ./web/
-COPY --chown=prism:prism "PRISM AI/data/" ./data/
+COPY --chown=prism:prism ["PRISM AI/server.py", "PRISM AI/ingest.py", "PRISM AI/models.py", "PRISM AI/research.py", "PRISM AI/store.py", "PRISM AI/file_import.py", "./"]
+COPY --chown=prism:prism ["PRISM AI/web/", "./web/"]
+COPY --chown=prism:prism ["PRISM AI/data/", "./data/"]
 
 # Switch to non-root user
 USER prism
